@@ -1,5 +1,9 @@
 # AIEP GENOME SDK v1.1 — Kernel Architecture
 
+[![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
+[![Release](https://img.shields.io/github/v/tag/Phatfella/AIEP-GENOME-SDK?label=release)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases)
+
 **Architected Instruction and Evidence Protocol**  
 **Classification:** Protocol Reference Implementation + Production SaaS Foundation  
 **Kernel:** FROZEN at v1.0.0
