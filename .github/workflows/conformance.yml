@@ -1,0 +1,80 @@
+name: AIEP Conformance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  conformance:
+    name: AIEP-VECTORS v1.0.0 conformance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout genome-sdk
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install genome-sdk (editable, no extras)
+        run: pip install -e .
+
+      # ── Self-test: verifier must match CANON_SPEC before anything else ──
+      - name: Verifier self-test
+        run: aiep-verify --self-test --json
+
+      # ── Genome-SDK internal vectors (vectors/v1.0.0/) ──────────────────
+      - name: Run genome-sdk vectors (v1.0.0)
+        run: |
+          aiep-verify --vectors vectors/v1.0.0/ --json | tee /tmp/suite-internal.json
+          python - <<'EOF'
+          import json, sys
+          r = json.load(open("/tmp/suite-internal.json"))
+          verdict = r.get("compliance_verdict", "UNKNOWN")
+          print(f"Verdict: {verdict}")
+          sys.exit(0 if r.get("core_compliant") else 1)
+          EOF
+
+      # ── AIEP-VECTORS repo (separate, pinned tag) ────────────────────────
+      # NOTE: This step will fail until https://github.com/Phatfella/AIEP-VECTORS
+      # exists and has a v1.0.0 tag. Mark as continue-on-error until then.
+      - name: Clone AIEP-VECTORS v1.0.0
+        id: clone_vectors
+        continue-on-error: true
+        run: |
+          git clone --depth 1 --branch v1.0.0 \
+            https://github.com/Phatfella/AIEP-VECTORS.git /tmp/AIEP-VECTORS
+
+      - name: Verify SHA256SUMS (AIEP-VECTORS)
+        if: steps.clone_vectors.outcome == 'success'
+        working-directory: /tmp/AIEP-VECTORS/v1.0.0
+        run: |
+          sha256sum --check SHA256SUMS.txt
+
+      - name: Run AIEP-VECTORS suite
+        if: steps.clone_vectors.outcome == 'success'
+        run: |
+          aiep-verify --vectors /tmp/AIEP-VECTORS/v1.0.0/ --json | tee /tmp/suite-vectors.json
+          python - <<'EOF'
+          import json, sys
+          r = json.load(open("/tmp/suite-vectors.json"))
+          verdict = r.get("compliance_verdict", "UNKNOWN")
+          print(f"AIEP-VECTORS verdict: {verdict}")
+          sys.exit(0 if r.get("core_compliant") else 1)
+          EOF
+
+      - name: Report
+        if: always()
+        run: |
+          echo "=== Conformance complete ==="
+          if [ -f /tmp/suite-internal.json ]; then
+            python - <<'EOF'
+          import json
+          r = json.load(open("/tmp/suite-internal.json"))
+          print(f"Internal suite: {r.get('core_passed',0)}/{r.get('core_total',0)} core  |  {r.get('compliance_verdict','?')}")
+          EOF
+          fi

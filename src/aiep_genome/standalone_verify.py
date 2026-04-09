@@ -38,6 +38,7 @@ KERNEL_VERSION     = "1.0.0"
 CANON_SPEC_VERSION = "1.0.0"
 LOCKFILE_VERSION   = "1.0.0"
 VECTORS_VERSION    = "1.0.0"
+VECTOR_PACK_VERSION = "1.0.0"
 
 
 # ── Canonical primitives (mirror of kernel/canon/canon.py LOCKED at v1.0.0) ──
@@ -121,10 +122,12 @@ def evaluate_admissibility(plausibility_status: str, dissent_final_position,
 # If any check fails the verifier aborts — it cannot silently produce wrong results.
 # Known values are from CANON_SPEC.md v1.0.0 (verified against the locked kernel).
 
-def _run_self_test() -> list:
+def _self_test() -> list:
     """
     Verify this implementation against the known vectors in CANON_SPEC.md v1.0.0.
     Returns a list of failure strings. Empty list = all checks passed.
+    Must be called before every operation — a drifted verifier must not silently
+    produce wrong results.
     """
     failures = []
 
@@ -132,22 +135,22 @@ def _run_self_test() -> list:
     got = canonical_json({"z": 1, "a": 2})
     if got != '{"a":2,"z":1}':
         failures.append(
-            f"R1/R2: canonical_json({'z':1,'a':2}) = {got!r}, expected '{{\"a\":2,\"z\":1}}'"
+            f"R1/R2: canonical_json({{z:1,a:2}}) = {got!r}, expected '{{\"a\":2,\"z\":1}}'"
         )
 
-    # R3: NFC normalisation — applied in canonical_json, not sha256_hex
-    # café NFD (e + U+0301 combining acute) and café NFC (U+00E9) must
-    # produce identical canonical_json output after normalisation.
-    nfd_canon = canonical_json({"s": "cafe\u0301"})
-    nfc_canon = canonical_json({"s": "caf\u00e9"})
-    if nfd_canon != nfc_canon:
+    # R3: NFC normalisation — precomposed \u00C5 (Å) must equal decomposed A + \u030A (ring above)
+    j_comp = canonical_json({"n": "\u00c5"})
+    j_dec  = canonical_json({"n": "A\u030a"})
+    if j_comp != j_dec:
         failures.append(
-            f"R3: NFC normalisation failed in canonical_json — "
-            f"NFD={nfd_canon!r} != NFC={nfc_canon!r}"
+            f"R3: NFC failure — precomposed \\u00C5 != decomposed A\\u030A\n"
+            f"  composed:   {j_comp!r}\n"
+            f"  decomposed: {j_dec!r}"
         )
 
     # R4: sha256_hex known vectors (verified against locked kernel)
-    # sha256_hex operates on raw UTF-8 bytes; NFC is applied upstream by canonical_json.
+    # sha256_hex operates on raw UTF-8 bytes.
+    # NOTE: sha256_hex('AIEP') = 13f3f3d9... — do NOT use d3e20aae... (confirmed wrong)
     h_empty = sha256_hex("")
     if h_empty != "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855":
         failures.append(
@@ -162,12 +165,20 @@ def _run_self_test() -> list:
             f"expected '13f3f3d9594fca34661784a66ff206699284ac5c3ebb048b5654eb05f289ec7e'"
         )
 
-    # R7: concat_hash boundary collision safety
-    h_ab_cd = concat_hash("AB", "CD")
-    h_a_bcd = concat_hash("A", "BCD")
-    if h_ab_cd == h_a_bcd:
+    # R6: ensure_ascii=False — no \uXXXX escaping in output
+    j_e = canonical_json({"k": "\u00e9"})
+    if "\\u" in j_e:
+        failures.append(f"R6: \\uXXXX escaping present in output: {j_e!r}")
+
+    # R7: length-prefix boundary collision safety
+    if concat_hash("AB", "CD") == concat_hash("A", "BCD"):
         failures.append(
-            f"R7: boundary collision — concat_hash('AB','CD') == concat_hash('A','BCD') = {h_ab_cd}"
+            f"R7: boundary collision — concat_hash('AB','CD') == concat_hash('A','BCD')"
+        )
+    # R7: empty-field variant must also be distinct
+    if concat_hash("", "x") == concat_hash("x", ""):
+        failures.append(
+            f"R7: empty-field collision — concat_hash('','x') == concat_hash('x','')"
         )
 
     # R8: pack_hash DET-001 known vector (the canonical reference record)
@@ -278,37 +289,93 @@ def run_vector(vector: dict) -> dict:
 
     if suite == "deterministic-replay":
         inp = vector["input"]
-        expected_hash = vector["expected"]["pack_hash"]
-        actual = pack_hash(inp["evidence_ledger"], inp["reasoning_ledger"],
-                           inp["schema_version_id"])
-        if actual == expected_hash:
-            ok("PACK_HASH", f"Verified: {actual[:16]}...")
+        if "evidence_ledger_precomposed" in inp:
+            # NFC variant: two ledger forms must produce identical pack_hash
+            rl = inp.get("reasoning_ledger", [])
+            sv = inp.get("schema_version_id", "")
+            h_pre = pack_hash(inp["evidence_ledger_precomposed"], rl, sv)
+            h_dec = pack_hash(inp["evidence_ledger_decomposed"], rl, sv)
+            expected = vector["expected"].get("pack_hash",
+                             vector["expected"].get("both_must_equal", ""))
+            if h_pre != h_dec:
+                fail("NFC_EQUAL",
+                     f"precomposed {h_pre[:16]}... != decomposed {h_dec[:16]}...")
+            else:
+                ok("NFC_EQUAL", "precomposed == decomposed")
+            if expected and h_pre != expected:
+                fail("PACK_HASH", f"Expected {expected[:16]}... got {h_pre[:16]}...")
+            elif expected:
+                ok("PACK_HASH", f"Verified: {h_pre[:16]}...")
         else:
-            fail("PACK_HASH",
-                 f"Expected {expected_hash[:16]}... got {actual[:16]}...")
+            expected_hash = vector["expected"]["pack_hash"]
+            actual = pack_hash(inp["evidence_ledger"], inp["reasoning_ledger"],
+                               inp["schema_version_id"])
+            if actual == expected_hash:
+                ok("PACK_HASH", f"Verified: {actual[:16]}...")
+            else:
+                fail("PACK_HASH",
+                     f"Expected {expected_hash[:16]}... got {actual[:16]}...")
+            # must_differ_from assertion (uniqueness check)
+            mdf = vector["expected"].get("must_differ_from")
+            if mdf and actual == mdf.get("pack_hash", ""):
+                fail("UNIQUENESS",
+                     f"Hash must differ from {mdf.get('vector','?')} but is identical")
+            elif mdf:
+                ok("UNIQUENESS", f"Differs from {mdf.get('vector','?')}")
 
     elif suite == "tamper-detection":
-        committed = vector["committed_record"]
-        tampered = vector["tampered_record"]
-        stored = committed["stored_pack_hash"]
-        tampered_actual = pack_hash(
-            tampered["evidence_ledger"], tampered["reasoning_ledger"],
-            tampered["schema_version_id"])
-        expected_tampered = vector["expected"]["tampered_pack_hash"]
-        if tampered_actual == expected_tampered:
-            ok("TAMPERED_HASH", f"Tampered hash consistent: {tampered_actual[:16]}...")
+        if "committed_record" in vector:
+            # Legacy format
+            committed = vector["committed_record"]
+            tampered = vector["tampered_record"]
+            stored = committed["stored_pack_hash"]
+            tampered_actual = pack_hash(
+                tampered["evidence_ledger"], tampered["reasoning_ledger"],
+                tampered["schema_version_id"])
+            expected_tampered = vector["expected"]["tampered_pack_hash"]
+            if tampered_actual == expected_tampered:
+                ok("TAMPERED_HASH", f"Tampered hash consistent: {tampered_actual[:16]}...")
+            else:
+                fail("TAMPERED_HASH",
+                     f"Expected tampered hash {expected_tampered[:16]}... "
+                     f"got {tampered_actual[:16]}...")
+            if tampered_actual != stored:
+                ok("MISMATCH_DETECTED",
+                   "Tampered hash \u2260 stored hash \u2014 tampering detectable")
+            else:
+                fail("MISMATCH_DETECTED",
+                     "Tampered hash == stored hash \u2014 tampering NOT detectable")
         else:
-            fail("TAMPERED_HASH",
-                 f"Expected tampered hash {expected_tampered[:16]}... got {tampered_actual[:16]}...")
-        if tampered_actual != stored:
-            ok("MISMATCH_DETECTED", "Tampered hash \u2260 stored hash \u2014 tampering detectable")
-        else:
-            fail("MISMATCH_DETECTED", "Tampered hash == stored hash \u2014 tampering NOT detectable")
+            # New format: input contains _original / _tampered variants
+            inp = vector["input"]
+            sv = inp.get("schema_version_id", "")
+            el_orig = inp.get("evidence_ledger_original", inp.get("evidence_ledger", []))
+            el_tamp = inp.get("evidence_ledger_tampered", inp.get("evidence_ledger", []))
+            rl_orig = inp.get("reasoning_ledger_original", inp.get("reasoning_ledger", []))
+            rl_tamp = inp.get("reasoning_ledger_tampered", inp.get("reasoning_ledger", []))
+            h_orig = pack_hash(el_orig, rl_orig, sv)
+            h_tamp = pack_hash(el_tamp, rl_tamp, sv)
+            exp_orig = vector["expected"].get("original_pack_hash", "")
+            exp_tamp = vector["expected"].get("tampered_pack_hash", "")
+            if exp_orig and h_orig != exp_orig:
+                fail("ORIGINAL_HASH", f"Expected {exp_orig[:16]}... got {h_orig[:16]}...")
+            elif exp_orig:
+                ok("ORIGINAL_HASH", f"Verified: {h_orig[:16]}...")
+            if exp_tamp and h_tamp != exp_tamp:
+                fail("TAMPERED_HASH", f"Expected {exp_tamp[:16]}... got {h_tamp[:16]}...")
+            elif exp_tamp:
+                ok("TAMPERED_HASH", f"Verified: {h_tamp[:16]}...")
+            if h_orig == h_tamp:
+                fail("MISMATCH_DETECTED",
+                     "original == tampered \u2014 tampering NOT detectable")
+            else:
+                ok("MISMATCH_DETECTED",
+                   "original \u2260 tampered \u2014 tampering detectable")
 
     elif suite == "negative-proof":
         inp = vector["input"]
         if "expected_evidence_type" in inp:
-            # NEG-001 style: pure negative proof hash
+            # Direct negative_proof_hash test
             expected_nph = vector["expected"]["negative_proof_hash"]
             actual_nph = negative_proof_hash(
                 inp["expected_evidence_type"], inp["gap_window_start"],
@@ -319,7 +386,7 @@ def run_vector(vector: dict) -> dict:
                 fail("NEGATIVE_PROOF_HASH",
                      f"Expected {expected_nph[:16]}... got {actual_nph[:16]}...")
         else:
-            # NEG-002 style: pack_hash of record containing NegativeProofRecord
+            # Pack-hash-including a NegativeProofRecord in the ledger
             expected_ph = vector["expected"]["pack_hash"]
             actual_ph = pack_hash(inp["evidence_ledger"], inp["reasoning_ledger"],
                                   inp["schema_version_id"])
@@ -335,7 +402,8 @@ def run_vector(vector: dict) -> dict:
                         item["expected_evidence_type"], item["gap_window_start"],
                         item["gap_window_end"], schema)
                     if item["negative_proof_hash"] == expected_nph:
-                        ok("EMBEDDED_NEG_PROOF_HASH", "Embedded NegativeProofRecord hash verified")
+                        ok("EMBEDDED_NEG_PROOF_HASH",
+                           "Embedded NegativeProofRecord hash verified")
                     else:
                         fail("EMBEDDED_NEG_PROOF_HASH",
                              "Embedded NegativeProofRecord hash mismatch")
@@ -343,7 +411,6 @@ def run_vector(vector: dict) -> dict:
     elif suite == "admissibility":
         inp = vector["input"]
         expected_admissible = vector["expected"]["admissible"]
-        expected_reason = vector["expected"]["reason"]
         actual_admissible, actual_reason = evaluate_admissibility(
             inp["plausibility_status"], inp.get("dissent_final_position"),
             inp["gate_status"])
@@ -352,11 +419,43 @@ def run_vector(vector: dict) -> dict:
         else:
             fail("ADMISSIBLE",
                  f"Expected admissible={expected_admissible}, got {actual_admissible}")
-        if actual_reason == expected_reason:
-            ok("REASON", f"reason={actual_reason!r}")
+        # Support reason_contains (substring) and reason (exact match)
+        if "reason_contains" in vector["expected"]:
+            substr = vector["expected"]["reason_contains"]
+            if substr in actual_reason:
+                ok("REASON", f"reason contains {substr!r}")
+            else:
+                fail("REASON",
+                     f"Expected reason to contain {substr!r}, got {actual_reason!r}")
+        elif "reason" in vector["expected"]:
+            expected_reason = vector["expected"]["reason"]
+            if actual_reason == expected_reason:
+                ok("REASON", f"reason={actual_reason!r}")
+            else:
+                fail("REASON",
+                     f"Expected reason {expected_reason!r}, got {actual_reason!r}")
+
+    elif suite == "dissent-preservation":
+        inp = vector["input"]
+        sv = inp.get("schema_version_id", "")
+        el = inp.get("evidence_ledger", [])
+        h_high = pack_hash(el, inp.get("reasoning_ledger_branch_HIGH", []), sv)
+        h_low  = pack_hash(el, inp.get("reasoning_ledger_branch_LOW", []), sv)
+        exp_high = vector["expected"].get("pack_hash_branch_HIGH", "")
+        exp_low  = vector["expected"].get("pack_hash_branch_LOW", "")
+        if exp_high and h_high != exp_high:
+            fail("BRANCH_HIGH", f"Expected {exp_high[:16]}... got {h_high[:16]}...")
+        elif exp_high:
+            ok("BRANCH_HIGH", f"Verified: {h_high[:16]}...")
+        if exp_low and h_low != exp_low:
+            fail("BRANCH_LOW", f"Expected {exp_low[:16]}... got {h_low[:16]}...")
+        elif exp_low:
+            ok("BRANCH_LOW", f"Verified: {h_low[:16]}...")
+        if h_high == h_low:
+            fail("BRANCHES_DISTINCT",
+                 "HIGH and LOW branches hash identically \u2014 dissent not preserved")
         else:
-            fail("REASON",
-                 f"Expected reason {expected_reason!r}, got {actual_reason!r}")
+            ok("BRANCHES_DISTINCT", "HIGH \u2260 LOW")
 
     else:
         fail("UNKNOWN_SUITE", f"No handler for suite {suite!r}")
@@ -366,20 +465,54 @@ def run_vector(vector: dict) -> dict:
 
 
 def run_suite(vectors_dir: Path) -> dict:
-    """Run all case-*.json vectors under vectors_dir recursively."""
+    """
+    Run all vector .json files under vectors_dir recursively.
+    Returns compliance_verdict 'AIEP-COMPLIANT vX.Y.Z' or 'NOT COMPLIANT'.
+    Only core-profile vectors are required for the compliance verdict.
+    """
     results = []
-    vector_files = sorted(vectors_dir.rglob("case-*.json"))
-    if not vector_files:
-        return {"total": 0, "passed": 0, "failed": 0, "results": []}
-    for vf in vector_files:
-        with open(vf, encoding="utf-8-sig") as f:
-            vector = json.load(f)
+    for vf in sorted(vectors_dir.glob("**/*.json")):
+        if vf.name in ("MANIFEST.json", "SHA256SUMS.txt", "vector.schema.json"):
+            continue
+        try:
+            vector = json.loads(vf.read_text(encoding="utf-8-sig"))
+        except Exception as exc:
+            results.append({
+                "passed": False, "vector_id": vf.name,
+                "suite": "unknown", "profile": "core",
+                "file": str(vf.relative_to(vectors_dir)),
+                "checks": [], "errors": [f"JSON parse error: {exc}"],
+            })
+            continue
         result = run_vector(vector)
         result["file"] = str(vf.relative_to(vectors_dir))
+        result["profile"] = vector.get("profile", "core")
         results.append(result)
-    passed = sum(1 for r in results if r["passed"])
-    return {"total": len(results), "passed": passed,
-            "failed": len(results) - passed, "results": results}
+
+    if not results:
+        return {
+            "compliance_verdict": "NOT COMPLIANT",
+            "core_compliant": False,
+            "core_total": 0, "core_passed": 0,
+            "total": 0, "passed": 0, "failed": 0, "results": [],
+        }
+
+    core_results = [r for r in results if r.get("profile") == "core"]
+    core_passed  = sum(1 for r in core_results if r["passed"])
+    all_passed   = sum(1 for r in results if r["passed"])
+    core_ok      = (core_passed == len(core_results) and bool(core_results))
+    label        = f"AIEP-COMPLIANT v{VECTOR_PACK_VERSION}" if core_ok else "NOT COMPLIANT"
+
+    return {
+        "compliance_verdict": label,
+        "core_compliant": core_ok,
+        "core_total": len(core_results),
+        "core_passed": core_passed,
+        "total": len(results),
+        "passed": all_passed,
+        "failed": len(results) - all_passed,
+        "results": results,
+    }
 
 
 # ── Output formatting ─────────────────────────────────────────────────────────
@@ -389,10 +522,12 @@ def print_self_test_result(failures: list) -> None:
     print("=" * 58)
     checks = [
         "R1/R2 canonical_json key order + compact format",
-        "R3    NFC normalisation in canonical_json",
+        "R3    NFC: precomposed \\u00C5 == decomposed A\\u030A",
         "R4    sha256_hex('') known vector",
         "R4    sha256_hex('AIEP') known vector",
+        "R6    ensure_ascii=False (no \\uXXXX escaping)",
         "R7    concat_hash boundary collision safety",
+        "R7    concat_hash empty-field collision safety",
         "R8    pack_hash DET-001 known vector",
     ]
     for check in checks:
@@ -417,9 +552,9 @@ def print_record_result(result: dict, path: str) -> None:
         print(f"  {icon} {c['check']}: {c['detail']}")
     print("=" * 56)
     if result["valid"]:
-        print("  VERDICT: VALID \u2014 record is cryptographically sound\n")
+        print("  VERDICT: record valid\n")
     else:
-        print("  VERDICT: INVALID")
+        print("  VERDICT: record invalid")
         for e in result["errors"]:
             print(f"    \u2192 {e}")
         print()
@@ -436,11 +571,15 @@ def print_suite_result(suite_result: dict) -> None:
             for e in r["errors"]:
                 print(f"      \u2192 {e}")
     print("=" * 56)
+    c  = suite_result.get("core_passed", suite_result["passed"])
+    ct = suite_result.get("core_total",  suite_result["total"])
     t, p, f = suite_result["total"], suite_result["passed"], suite_result["failed"]
-    if f == 0:
-        print(f"  RESULT: {p}/{t} PASS \u2014 CONFORMANT\n")
-    else:
-        print(f"  RESULT: {p}/{t} PASS, {f} FAIL \u2014 NON-CONFORMANT\n")
+    verdict = suite_result.get("compliance_verdict",
+                               f"AIEP-COMPLIANT v{VECTOR_PACK_VERSION}" if f == 0
+                               else "NOT COMPLIANT")
+    print(f"  Core:  {c}/{ct} passed")
+    print(f"  Total: {p}/{t} passed")
+    print(f"  VERDICT: {verdict}\n")
 
 
 # ── CLI entry point ───────────────────────────────────────────────────────────
@@ -469,7 +608,7 @@ def main() -> int:
 
     # Always run self-test first.
     # A verifier that has drifted from CANON_SPEC must not silently produce wrong results.
-    canon_failures = _run_self_test()
+    canon_failures = _self_test()
 
     if args.self_test:
         if args.as_json:
@@ -499,7 +638,7 @@ def main() -> int:
             print(json.dumps(suite_result, indent=2))
         else:
             print_suite_result(suite_result)
-        return 0 if suite_result["failed"] == 0 else 1
+        return 0 if suite_result.get("core_compliant", suite_result["failed"] == 0) else 1
 
     if args.record:
         if args.record == "-":
