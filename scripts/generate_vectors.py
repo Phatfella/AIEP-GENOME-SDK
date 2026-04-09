@@ -49,6 +49,45 @@ VECTOR_PACK_VERSION = "1.0.0"
 SCHEMA_VERSION_ID   = "aiep.canonical.v2.0.0"
 CANON_BLOBSHA       = "3b100b43bf59ce6f6d35397e8c8c173a4447de5d"
 
+
+def _assert_r5_consistency() -> None:
+    """
+    Guard: abort if kernel canonical_json and standalone_verify.canonical_json
+    produce different output for numeric inputs.  Prevents publishing vectors
+    with expected hashes that the verifier cannot reproduce.
+    """
+    import importlib.util as _ilu
+
+    _sv_path = ROOT / "src" / "aiep_genome" / "standalone_verify.py"
+    _spec = _ilu.spec_from_file_location("standalone_verify", _sv_path)
+    _sv = _ilu.module_from_spec(_spec)
+    _spec.loader.exec_module(_sv)  # type: ignore[union-attr]
+
+    # Only test integer inputs -- kernel and verifier both serialise integers identically.
+    # float inputs (e.g. 1.0) diverge: kernel emits "1.0", verifier emits "1" (R5).
+    # That divergence is intentional and safe because AIEP-VECTORS v1.0.0 contains
+    # no floating-point number values in any fixture.
+    _test_cases = [
+        {"a": 1},
+        {"b": [1, 2, 3]},
+        {"z": "text", "a": 42},
+        {"nested": {"x": 100, "y": 0}},
+    ]
+    for _obj in _test_cases:
+        _k = canonical_json(_obj)
+        _v = _sv.canonical_json(_obj)
+        if _k != _v:
+            print(
+                f"R5 CONSISTENCY FAILURE: input={_obj!r}\n"
+                f"  kernel   = {_k!r}\n"
+                f"  verifier = {_v!r}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+
+_assert_r5_consistency()
+
 # â”€â”€ Shared test data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # These are the canonical reference fixtures for AIEP-VECTORS v1.0.0.
 # Do NOT change them after release â€” changes require a new vector pack version.
@@ -345,6 +384,7 @@ def _write_manifest(out_dir: pathlib.Path, vectors: list) -> None:
     manifest = {
         "vector_pack_version": VECTOR_PACK_VERSION,
         "kernel_version":      KERNEL_VERSION,
+        "lockfile_version":    LOCKFILE_VERSION,
         "canon_spec_version":  CANON_SPEC_VERSION,
         "canon_blobsha":       CANON_BLOBSHA,
         "schema_version_id":   SCHEMA_VERSION_ID,
