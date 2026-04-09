@@ -52,3 +52,6 @@ jobs:
           print(f'SHA256SUMS: {fails} failures')
           sys.exit(1 if fails else 0)
           "
+
+      - name: Run conformance test vectors
+        run: aiep-verify --vectors vectors/v1.0.0/

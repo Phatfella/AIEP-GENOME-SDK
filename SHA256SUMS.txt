@@ -6,3 +6,14 @@ a525b36eb8f7a09d303e5a533ce1922093fe8954a9adb05428d1b0032494f649  LICENSE
 368d2016a577a3f3177f168b15af6ca132f5124d98cf2069f12c3b429f359d27  README.md
 7fb536a55c1647b57338a4e22a389cde0b067142c6c0053d9a283acf39a7a8ce  SECURITY.md
 92255b005ad691cbcd8ceac80f75de9c9b0e6f1f859b757e0d445b850b382a9d  pyproject.toml
+c45ed9e16ad1f1318f4a6f751c0ec0184f3050f386c729bc31a8f6430d0b5e06  src/aiep_genome/verify_record.py
+2c95921572333142eeefec1e152857d1b6ba37eef85e03bb27415fd9da676426  vectors/v1.0.0/01-deterministic-replay/case-001.json
+98d93a83f6589080d41b185d6154d9c5dc5d843fcc410394d1dfce7635f2e314  vectors/v1.0.0/01-deterministic-replay/case-002.json
+3a5f92ea696ba37487544219d01871c2fd5254005466938ce7b44ad2623a44c2  vectors/v1.0.0/01-deterministic-replay/case-003.json
+9c1d5e66616db777d3dbe2683777f550fca3592b92aa5d0ae161c1fc7a1f3ec6  vectors/v1.0.0/02-tamper-detection/case-001.json
+9c392da2fa5e865f6229ad60b0bcc447d578c7264b52ecf2bc4a10e84418d934  vectors/v1.0.0/02-tamper-detection/case-002.json
+9883a129a466afa8daac1d117f31fbc738466fbe3d139025d6e45d827669bfc1  vectors/v1.0.0/03-negative-proof/case-001.json
+5a00de2047da241f57bda011301531c3d5498d6bcdf01f51cdab067bc920cd99  vectors/v1.0.0/03-negative-proof/case-002.json
+e81cb490994007ac01e97d74170a62702a1b25fcca47c93c6f294c30ce3446b4  vectors/v1.0.0/04-admissibility/case-001.json
+62eb2eed4c784c7a9f0b1b4befe21982c112f773a67eeca0f737de5e294ef976  vectors/v1.0.0/04-admissibility/case-002.json
+2d3dc58b1c24634d54f9b28f40d60ee242702767e23cb7c04e49ca22cd0b87d6  vectors/v1.0.0/04-admissibility/case-003.json

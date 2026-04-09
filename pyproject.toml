@@ -37,6 +37,7 @@ dev = ["pytest>=7", "jsonschema>=4"]
 "AIEP Hub" = "https://aiep.protocol"
 [project.scripts]
 aiep-genome = "aiep_genome.__main__:main"
+aiep-verify = "aiep_genome.verify_record:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

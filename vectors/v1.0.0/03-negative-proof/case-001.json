@@ -1,0 +1,20 @@
+{
+    "vector_id": "AIEP-TV-NEG-001",
+    "suite": "negative-proof",
+    "kernel_version": "1.0.0",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "description": "Absence of expected evidence is committed as a NegativeProofRecord with a deterministic hash. The negative_proof_hash commits to (expected_type, window_start, window_end, schema_version_id).",
+    "input": {
+        "expected_evidence_type": "sensor_reading",
+        "gap_window_start": "2026-01-01T00:00:00Z",
+        "gap_window_end": "2026-01-01T01:00:00Z",
+        "schema_version_id": "aiep.canonical.v2.0.0"
+    },
+    "expected": {
+        "negative_proof_hash": "dc74064e7f5653d797e14623752ff7768ee123d024d84a8094806d8f6cc1ef37"
+    },
+    "hash_function": "concat_hash(expected_evidence_type, gap_window_start, gap_window_end, schema_version_id)",
+    "deterministic": true,
+    "cross_platform": true,
+    "notes": "negative_proof_hash = sha256(len(expected_evidence_type)||expected_evidence_type || len(gap_window_start)||gap_window_start || len(gap_window_end)||gap_window_end || len(schema_version_id)||schema_version_id). All lengths are 8-byte big-endian. All strings are NFC-normalised UTF-8."
+}

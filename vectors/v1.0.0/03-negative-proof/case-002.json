@@ -1,0 +1,34 @@
+{
+    "vector_id": "AIEP-TV-NEG-002",
+    "suite": "negative-proof",
+    "kernel_version": "1.0.0",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "description": "A NegativeProofRecord committed to the evidence ledger contributes to pack_hash deterministically. Replaying the record produces the same pack_hash.",
+    "input": {
+        "evidence_ledger": [
+            {
+                "collected_ts": "2026-01-01T01:00:00Z",
+                "evidence_id": "00000000-0000-0000-0000-000000000003",
+                "evidence_type": "negative_proof",
+                "expected_evidence_type": "sensor_reading",
+                "gap_window_start": "2026-01-01T00:00:00Z",
+                "gap_window_end": "2026-01-01T01:00:00Z",
+                "negative_proof_hash": "dc74064e7f5653d797e14623752ff7768ee123d024d84a8094806d8f6cc1ef37"
+            }
+        ],
+        "reasoning_ledger": [
+            {
+                "conclusion": "No sensor data in window. Absence recorded.",
+                "reasoning_id": "00000000-0000-0000-0000-000000000103"
+            }
+        ],
+        "schema_version_id": "aiep.canonical.v2.0.0"
+    },
+    "expected": {
+        "pack_hash": "d1dc6d2e7350debb166c61e0f1268dde8a4ede71aee7fa774996898c0db051b4",
+        "negative_proof_hash_valid": true
+    },
+    "deterministic": true,
+    "cross_platform": true,
+    "notes": "First verify negative_proof_hash inside the NegativeProofRecord using NEG-001 inputs. Then verify pack_hash includes the full record including that hash. Both checks must pass."
+}

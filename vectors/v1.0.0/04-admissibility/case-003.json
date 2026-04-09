@@ -1,0 +1,17 @@
+{
+    "vector_id": "AIEP-TV-ADM-003",
+    "suite": "admissibility",
+    "kernel_version": "1.0.0",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "description": "Gate OPEN + plausible evidence + dissent accepted = admissible. All three conditions satisfied.",
+    "input": {
+        "plausibility_status": "plausible",
+        "dissent_final_position": "accept",
+        "gate_status": "OPEN"
+    },
+    "expected": {
+        "admissible": true,
+        "reason": "ADMISSIBLE"
+    },
+    "notes": "The positive case: all constitutional constraints satisfied. Conclusion may advance."
+}

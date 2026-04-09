@@ -1,6 +1,7 @@
 # AIEP GENOME SDK v1.1 — Kernel Architecture
 
 [![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)
+[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.0.0%20PASS-green)](CONFORMANCE.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v1.2.0-blue)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases)
 

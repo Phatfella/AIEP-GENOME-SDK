@@ -1,0 +1,30 @@
+{
+    "vector_id": "AIEP-TV-DET-001",
+    "suite": "deterministic-replay",
+    "kernel_version": "1.0.0",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "description": "Identical evidence and reasoning ledgers produce identical pack_hash across any compliant implementation.",
+    "input": {
+        "evidence_ledger": [
+            {
+                "collected_ts": "2026-01-01T00:00:00Z",
+                "content": "temperature_reading_celsius=72.4",
+                "evidence_id": "00000000-0000-0000-0000-000000000001",
+                "evidence_type": "structured_data"
+            }
+        ],
+        "reasoning_ledger": [
+            {
+                "conclusion": "Temperature within safe operating range. No action required.",
+                "reasoning_id": "00000000-0000-0000-0000-000000000101"
+            }
+        ],
+        "schema_version_id": "aiep.canonical.v2.0.0"
+    },
+    "expected": {
+        "pack_hash": "cb1a5394a39cb30ad2b9bdeb4afae26d25f7f9afbb4026f74af3b36e7146e3ae"
+    },
+    "deterministic": true,
+    "cross_platform": true,
+    "notes": "pack_hash = sha256(canonical_json({evidence_ledger, reasoning_ledger, schema_version_id})). generated_ts is EXCLUDED — replay must be timestamp-independent."
+}
