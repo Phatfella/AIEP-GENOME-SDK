@@ -63,20 +63,11 @@ def _canon_number(n) -> str:
             f"R5: minus-zero is forbidden in canonical records (got {n!r})")
     return format(d.normalize(), "f")
 
-def _norm_numbers_in_object(obj):
-    """
-    R5: Walk the full structure. Replace every int/float with its R5 canonical string.
-    bool checked before int -- isinstance(True, int) is True.
-    """
-    if isinstance(obj, bool):  return obj
-    if isinstance(obj, (int, float)):
-        return _canon_number(obj)
-    if isinstance(obj, str):   return obj
-    if isinstance(obj, dict):
-        return {k: _norm_numbers_in_object(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_norm_numbers_in_object(i) for i in obj]
-    return obj
+# _norm_numbers_in_object is intentionally absent.
+# Numbers are handled directly in _sort_and_serialise() to avoid converting
+# numeric values to Python strings before serialisation, which would cause
+# them to be emitted as JSON string literals ("1") instead of JSON numeric
+# tokens (1).
 
 # -- R1: Key sort by NFC-normalised UTF-8 byte sequences ---------------------
 
@@ -89,34 +80,52 @@ def _utf8_sort_key(s: str) -> bytes:
     return _nfc(s).encode("utf-8")
 
 def _sort_and_serialise(obj) -> str:
-    """Sort dict keys by NFC UTF-8 byte order and serialise compactly."""
+    """
+    Recursive canonical serialiser.
+    Handles each JSON type explicitly -- no implicit json.dumps fallback on numbers.
+
+    R1: dict keys sorted by NFC UTF-8 byte sequences
+    R2: compact separators, no whitespace
+    R3: NFC applied to all strings (via _nfc_object at entry)
+    R5: numbers emitted as canonical numeric tokens, never as strings
+    R6: ensure_ascii=False on string values -- literal UTF-8
+    """
+    # bool must be checked before int -- isinstance(True, int) is True in Python
+    if isinstance(obj, bool):
+        return "true" if obj else "false"
+
+    if isinstance(obj, (int, float)):
+        # R5: emit canonical numeric token directly -- no quotes
+        return _canon_number(obj)
+
+    if isinstance(obj, str):
+        # R6: literal UTF-8, no \uXXXX escaping
+        return json.dumps(obj, ensure_ascii=False)
+
+    if obj is None:
+        return "null"
+
+    if isinstance(obj, list):
+        return "[" + ",".join(_sort_and_serialise(i) for i in obj) + "]"
+
     if isinstance(obj, dict):
+        # R1: sort by NFC-normalised UTF-8 byte sequences
         sorted_items = sorted(obj.items(), key=lambda kv: _utf8_sort_key(kv[0]))
         inner = ",".join(
             json.dumps(_nfc(k), ensure_ascii=False) + ":" + _sort_and_serialise(v)
             for k, v in sorted_items
         )
         return "{" + inner + "}"
-    if isinstance(obj, list):
-        return "[" + ",".join(_sort_and_serialise(i) for i in obj) + "]"
-    if isinstance(obj, bool):
-        return "true" if obj else "false"
-    if isinstance(obj, str):
-        return json.dumps(obj, ensure_ascii=False)
-    if isinstance(obj, (int, float)):
-        return _canon_number(obj)  # R5: raw number string, never quoted
-    if obj is None:
-        return "null"
-    return json.dumps(obj, ensure_ascii=False)
 
-def _canonical_json_recursive(obj) -> str:
-    """R1+R2+R3+R5+R6: R3 first, then sort+serialise (R5 handled inside)."""
-    obj = _nfc_object(obj)
-    return _sort_and_serialise(obj)
+    raise CanonError(f"R5: unhandled type {type(obj).__name__} -- cannot produce canonical JSON")
+
 
 def canonical_json(obj) -> str:
-    """Full canonical JSON per R1-R6. Entry point."""
-    return _canonical_json_recursive(obj)
+    """
+    R1+R2+R3+R5+R6: Canonical JSON.
+    Entry point. NFC-normalises all strings, then serialises with explicit type dispatch.
+    """
+    return _sort_and_serialise(_nfc_object(obj))
 
 # -- R4: SHA-256, lowercase hex -----------------------------------------------
 
@@ -193,6 +202,7 @@ def _self_test() -> list:
     f = []
 
     # R1 -- member ordering by NFC UTF-8 bytes
+    # integers must appear as numeric tokens: {"a":2,"z":1} not {"a":"2","z":"1"}
     got = canonical_json({"z": 1, "a": 2})
     if got != '{"a":2,"z":1}':
         f.append(f'R1: expected \'{{"a":2,"z":1}}\', got {got!r}')
@@ -218,23 +228,30 @@ def _self_test() -> list:
         if got_h != exp:
             f.append(f"R4: sha256_hex({s!r}) expected {exp[:16]}... got {got_h[:16]}...")
 
-    # R5 -- minus-zero raises
+    # R5 -- numbers as numeric tokens, not strings
+    got_num = canonical_json({"v": 1.5})
+    if got_num != '{"v":1.5}':
+        f.append(f'R5: expected \'{{"v":1.5}}\', got {got_num!r}')
+
+    got_int = canonical_json({"v": 1.0})
+    if got_int != '{"v":1}':
+        f.append(f'R5: trailing zero -- expected \'{{"v":1}}\', got {got_int!r}')
+
+    got_large = canonical_json({"v": 1e5})
+    if "e" in got_large.lower() or got_large != '{"v":100000}':
+        f.append(f'R5: scientific notation -- expected \'{{"v":100000}}\', got {got_large!r}')
+
+    # R5 -- minus-zero raises CanonError
     try:
         _canon_number(-0.0)
         f.append("R5: minus-zero should raise CanonError but did not")
     except CanonError:
-        pass
+        pass   # correct
 
-    # R5 -- trailing zeros trimmed
-    if _canon_number(1.50) != "1.5":
-        f.append(f"R5: trailing zero -- expected '1.5', got {_canon_number(1.50)!r}")
-    if _canon_number(1.0) != "1":
-        f.append(f"R5: trailing zero -- expected '1', got {_canon_number(1.0)!r}")
-
-    # R5 -- no scientific notation
-    result = _canon_number(1e5)
-    if "e" in result.lower():
-        f.append(f"R5: scientific notation present -- got {result!r}")
+    # R5 -- bool is not a number (True/False must not be R5-treated)
+    got_bool = canonical_json({"a": True, "b": False})
+    if got_bool != '{"a":true,"b":false}':
+        f.append(f'R5: bool serialised incorrectly -- got {got_bool!r}')
 
     # R6 -- no \uXXXX escaping
     if "\\u" in canonical_json({"k": "\u00e9"}):
