@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -21,11 +21,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install package
-        run: pip install -e .
+      - name: Install package and dev deps
+        run: pip install -e ".[dev]"
 
-      - name: Install pytest
-        run: pip install pytest
+      - name: Lint
+        run: |
+          pip install ruff
+          ruff check src/ tests/
 
       - name: Run tests
         run: pytest tests/ -v --tb=short

@@ -7,6 +7,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.egg-info/
+src/*.egg-info/
 *.egg
 .eggs/
 
@@ -24,6 +25,10 @@ env/
 .coverage
 htmlcov/
 .tox/
+
+# Type checkers / linters
+.mypy_cache/
+.ruff_cache/
 
 # Editors / OS
 .DS_Store
