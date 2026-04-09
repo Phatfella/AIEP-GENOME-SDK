@@ -39,9 +39,16 @@ def _nfc(s: str) -> str:
 def _nfc_object(obj):
     """R3: Recursively NFC-normalise all strings in a JSON-compatible structure."""
     if isinstance(obj, str):   return _nfc(obj)
-    if isinstance(obj, dict):  return {_nfc(k): _nfc_object(v) for k, v in obj.items()}
+    if isinstance(obj, dict):
+        for k in obj.keys():
+            if not isinstance(k, str):
+                raise CanonError(
+                    f"R1: object member name must be a string, "
+                    f"got {type(k).__name__} ({k!r})")
+        return {_nfc(k): _nfc_object(v) for k, v in obj.items()}
     if isinstance(obj, list):  return [_nfc_object(i) for i in obj]
-    if isinstance(obj, (int, float)): return obj   # numbers handled by _norm_numbers
+    if isinstance(obj, bool):  return obj
+    if isinstance(obj, (int, float)): return obj
     return obj
 
 # -- R5: Number normalisation ------------------------------------------------
@@ -51,13 +58,22 @@ class CanonError(ValueError):
 
 def _canon_number(n) -> str:
     """
-    R5: Canonical number serialisation.
-    - No scientific notation
-    - Trailing zeros trimmed
-    - Minus-zero FORBIDDEN (raises CanonError)
-    Mirrors kernel _norm_number() exactly.
+    R5: Canonical lexical representation of a number.
+    Emitted as a bare JSON numeric token -- no quotes.
+
+    Forbidden:
+      - Minus-zero    -> CanonError
+      - NaN           -> CanonError
+      - Infinity      -> CanonError
+
+    Normalised:
+      - No scientific notation  (1e5 -> 100000)
+      - Trailing zeros trimmed  (1.50 -> 1.5, 1.0 -> 1)
     """
     d = decimal.Decimal(str(n))
+    if not d.is_finite():
+        raise CanonError(
+            f"R5: non-finite number is forbidden in canonical records (got {n!r})")
     if d.is_zero() and d.is_signed():
         raise CanonError(
             f"R5: minus-zero is forbidden in canonical records (got {n!r})")
@@ -110,6 +126,7 @@ def _sort_and_serialise(obj) -> str:
 
     if isinstance(obj, dict):
         # R1: sort by NFC-normalised UTF-8 byte sequences
+        # (non-string key guard is in _nfc_object, called before this)
         sorted_items = sorted(obj.items(), key=lambda kv: _utf8_sort_key(kv[0]))
         inner = ",".join(
             json.dumps(_nfc(k), ensure_ascii=False) + ":" + _sort_and_serialise(v)
@@ -117,7 +134,9 @@ def _sort_and_serialise(obj) -> str:
         )
         return "{" + inner + "}"
 
-    raise CanonError(f"R5: unhandled type {type(obj).__name__} -- cannot produce canonical JSON")
+    raise CanonError(
+        f"Unhandled type {type(obj).__name__} -- "
+        f"cannot produce canonical JSON for value {obj!r}")
 
 
 def canonical_json(obj) -> str:
@@ -247,6 +266,28 @@ def _self_test() -> list:
         f.append("R5: minus-zero should raise CanonError but did not")
     except CanonError:
         pass   # correct
+
+    # R5 -- NaN rejected
+    import math
+    try:
+        _canon_number(math.nan)
+        f.append("R5: NaN should raise CanonError but did not")
+    except CanonError:
+        pass
+
+    # R5 -- Infinity rejected
+    try:
+        _canon_number(math.inf)
+        f.append("R5: Infinity should raise CanonError but did not")
+    except CanonError:
+        pass
+
+    # R1 -- non-string key rejected
+    try:
+        canonical_json({1: "x"})
+        f.append("R1: non-string key should raise CanonError but did not")
+    except CanonError:
+        pass
 
     # R5 -- bool is not a number (True/False must not be R5-treated)
     got_bool = canonical_json({"a": True, "b": False})
