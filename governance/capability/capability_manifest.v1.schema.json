@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiep.dev/schemas/governance/capability_manifest.v1.schema.json",
+  "title": "AIEP GENOME — Capability Manifest Schema v1.0.0",
+  "description": "Layer 1: Capability Negotiation (FC §3). Declares the versioned capability set under which an artefact was produced. Capability selection is deterministic and stored with artefact hash. Capability expansion is allowed. Silent override is forbidden.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "lockfile_version",
+    "flexibility_contract_version",
+    "hash_algorithms",
+    "proof_types",
+    "mirror_modes",
+    "policy_engine",
+    "declared_at",
+    "capability_hash"
+  ],
+  "properties": {
+    "manifest_id": {
+      "type": "string",
+      "description": "Unique identifier for this capability manifest instance.",
+      "minLength": 6
+    },
+    "lockfile_version": {
+      "type": "string",
+      "description": "LOCKFILE_VERSION this manifest is bound to. Must match kernel/LOCKFILE.json.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "flexibility_contract_version": {
+      "type": "string",
+      "description": "Version of the AIEP Flexibility Contract governing this manifest.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "hash_algorithms": {
+      "type": "array",
+      "description": "Ordered list of hash algorithm versions available. First entry is the active default.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["sha256.v1", "blake3.v1", "sha3_256.v1"]
+      }
+    },
+    "proof_types": {
+      "type": "array",
+      "description": "Proof mechanisms available under this capability set.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "negative_proof.v1",
+          "replay_pack.v1",
+          "merkle_noninclusion.v1",
+          "quantum_pre_evaluation.v1"
+        ]
+      }
+    },
+    "mirror_modes": {
+      "type": "array",
+      "description": "Mirror visibility modes available. Selection governed by Layer 2 policy.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["public.v1", "private.v1", "selective.v1"]
+      }
+    },
+    "policy_engine": {
+      "type": "array",
+      "description": "Policy evaluation engine versions available.",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["default.v1", "dsl.v1", "composite.v1"]
+      }
+    },
+    "active_frontier_max": {
+      "type": "integer",
+      "description": "Maximum active branches (I5). Must match LOCKFILE layer_0_locks.max_active_frontier. Not configurable — present here for artefact binding only.",
+      "minimum": 1,
+      "maximum": 64,
+      "default": 16
+    },
+    "adapters_enabled": {
+      "type": "array",
+      "description": "Adapter types enabled for this deployment (FC §6). Must be from permitted_adapters list in LOCKFILE.",
+      "items": {
+        "type": "string",
+        "enum": ["StorageAdapter", "RegistryAdapter", "MirrorAdapter", "PolicyEvaluatorAdapter"]
+      }
+    },
+    "declared_at": {
+      "type": "string",
+      "description": "RFC 3339 UTC Z timestamp when this capability manifest was declared. Recorded as data (R8).",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"
+    },
+    "capability_hash": {
+      "type": "string",
+      "description": "SHA-256 of canonical_json(manifest_without_capability_hash). Stored with every artefact produced under this capability set. Enables third-party verification of capability selection.",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "examples": [
+    {
+      "manifest_id": "cap-genome-saas-default-v1",
+      "lockfile_version": "1.0.0",
+      "flexibility_contract_version": "1.0.0",
+      "hash_algorithms": ["sha256.v1"],
+      "proof_types": ["negative_proof.v1", "replay_pack.v1"],
+      "mirror_modes": ["private.v1"],
+      "policy_engine": ["default.v1"],
+      "active_frontier_max": 16,
+      "adapters_enabled": ["StorageAdapter", "MirrorAdapter", "PolicyEvaluatorAdapter"],
+      "declared_at": "2026-02-27T00:00:00Z",
+      "capability_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}

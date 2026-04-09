@@ -1,0 +1,27 @@
+{
+  "aiep_version": "2.0.0",
+  "content_hash": "sha256:fb1fed39bfbc1d4e344596add8f3ccd4ac696ef8bb82d832e76884ab5635d69f",
+  "data": {
+    "classification": "public-approved",
+    "description": "Open SDK for building AIEP-compliant agents and integrations — provides canonical schema, evidence lifecycle, and protocol bindings.",
+    "id": "aiep-genome-sdk",
+    "last_reviewed": "2026-03-09",
+    "name": "AIEP-GENOME-SDK",
+    "patent_refs": [
+      "P01R",
+      "P55"
+    ],
+    "type": "aiep-repository",
+    "version": "1.0.0",
+    "visibility": "public"
+  },
+  "evidence": [],
+  "generated_at": "2026-03-13T15:13:11Z",
+  "mirror_page_hash": "1830ffc5d226ca217593d292f78aed4991690b9c0e9f920b5198a86238a6b617",
+  "plausibility": {},
+  "policy_hash": "bb69dea9e036fff44c44de4df8ea6ee361582aadbf8484e44ce4fb0a42a06f4b",
+  "probability": {},
+  "schema_id": "aiep.web.page.v1",
+  "schema_version": "1.0.0",
+  "source_url": "https://github.com/aiep-protocol/AIEP-GENOME-SDK/blob/main/README.md"
+}

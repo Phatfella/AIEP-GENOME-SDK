@@ -1,0 +1,4 @@
+
+[dev]
+pytest>=7
+jsonschema>=4

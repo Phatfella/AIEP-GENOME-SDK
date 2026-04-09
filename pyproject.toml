@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiep-genome-sdk"
+version = "1.2.0"
+license = "Apache-2.0"
+description = "AIEP GENOME SDK — zero-friction Python toolkit for building and adopting AIEP-compliant software"
+readme = "README.md"
+authors = [{ name = "AIEP Contributors" }]
+requires-python = ">=3.9"
+keywords = ["aiep", "evidence", "deterministic", "governance", "protocol"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "jsonschema>=4"]
+
+
+[project.urls]
+"Repository" = "https://github.com/NeilGrassby/AIEP-GENOME-SDK"
+"Changelog" = "https://github.com/NeilGrassby/AIEP-GENOME-SDK/blob/main/CHANGELOG.md"
+"Patent" = "https://www.ipo.gov.uk/p-ipsum/Case/ApplicationNumber/GB2519711.2"
+"AIEP Hub" = "https://aiep.protocol"
+[project.scripts]
+aiep-genome = "aiep_genome.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aiep_genome = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

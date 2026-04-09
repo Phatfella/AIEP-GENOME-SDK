@@ -1,0 +1,15 @@
+{
+  "_comment": "AIEP GENOME SDK — Mirror Policy. All artefacts are mirrorable. Visibility is governed, not optional.",
+  "policy_version": "1.0.0",
+  "kernel_rule": "All artefacts produced by kernel/ are mirror-compatible by default. Mirror cannot be disabled at kernel level.",
+  "visibility_modes": {
+    "PUBLIC":    { "description": "Mirror page accessible without authentication. Default for Hub deployments.", "default_for": "hub" },
+    "PRIVATE":   { "description": "Mirror page requires authentication. Default for GENOME SaaS deployments.", "default_for": "saas" },
+    "SELECTIVE": { "description": "Visibility configured per artefact or page. Requires explicit governance decision per record.", "default_for": null }
+  },
+  "default_visibility": "PRIVATE",
+  "override_rule": "Visibility may be changed by enterprise/config only. kernel/ and governance/ layers never change visibility.",
+  "first_class_rule": "Mirror compatibility is an architectural invariant. It is never bolted on after the fact.",
+  "content_hash_binding": "Every mirror page content_hash = sha256(canonical_json(data)). This binding is kernel-level and cannot be overridden.",
+  "no_additional_facts": "Mirror pages must not contain facts not derivable from the human-readable source page (P60)."
+}

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aiep.dev/schemas/enterprise/config.v1.schema.json",
+  "title": "AIEP GENOME SDK — Enterprise Configuration Schema",
+  "description": "Configuration surface for enterprise deployments. This schema defines what enterprise operators MAY control. Everything not listed here is kernel-level and cannot be configured.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["deployment_id", "mirror", "tenancy", "storage"],
+  "properties": {
+    "deployment_id": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{6,128}$" },
+    "mirror": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_visibility"],
+      "description": "Mirror visibility configuration. NEVER affects mirror content_hash computation.",
+      "properties": {
+        "default_visibility": { "type": "string", "enum": ["PUBLIC", "PRIVATE", "SELECTIVE"] },
+        "per_record_override": { "type": "boolean", "default": false }
+      }
+    },
+    "tenancy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode"],
+      "properties": {
+        "mode":       { "type": "string", "enum": ["single", "multi"] },
+        "tenant_ids": { "type": "array", "items": { "type": "string" }, "maxItems": 1000 },
+        "isolation":  { "type": "string", "enum": ["shared_schema", "separate_schema", "separate_db"] }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backend"],
+      "description": "Storage location and mode. NEVER affects hash computation.",
+      "properties": {
+        "backend":    { "type": "string", "enum": ["sqlite", "postgres", "mysql", "s3", "custom"] },
+        "connection": { "type": "string", "maxLength": 500 },
+        "region":     { "type": "string", "maxLength": 80 },
+        "encryption_at_rest": { "type": "boolean", "default": true }
+      }
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider":     { "type": "string", "enum": ["jwt", "oauth2", "saml", "api_key", "custom"] },
+        "jwks_uri":     { "type": "string", "format": "uri" },
+        "issuer":       { "type": "string", "maxLength": 200 },
+        "mfa_required": { "type": "boolean", "default": false }
+      }
+    }
+  },
+  "forbidden": {
+    "_comment": "The following are NEVER configurable at enterprise level. Attempting to configure them produces a startup error.",
+    "items": [
+      "kernel.canon.algorithm",
+      "kernel.canon.unicode_normalisation",
+      "kernel.canon.key_ordering",
+      "kernel.validation.invariants",
+      "kernel.validation.max_active_frontier",
+      "kernel.arbitration.constitutional_constraints",
+      "kernel.negative_proof.hash_function"
+    ]
+  }
+}

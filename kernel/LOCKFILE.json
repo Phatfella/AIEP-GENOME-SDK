@@ -1,0 +1,134 @@
+{
+  "_doc": "AIEP GENOME SDK — Kernel Freeze Lock v1.0. Governed by AIEP Flexibility Contract §2 (Layer 0). Any modification to a locked field requires new LOCKFILE_VERSION and triggers version fracture per §9.",
+  "LOCKFILE_VERSION": "1.0.0",
+  "FLEXIBILITY_CONTRACT_VERSION": "1.0.0",
+  "LOCKED_AT": "2026-02-27T00:00:00Z",
+  "PROTOCOL": "AIEP",
+  "SDK_VERSION": "1.1.0",
+  "layer_0_locks": {
+    "_doc": "Layer 0 — Kernel (Non-Negotiable). FC §2. Change any field here → new LOCKFILE_VERSION.",
+    "canonical_schema": {
+      "file": "schemas/core/aiep.canonical.schema.v2.0.0.schema.json",
+      "schema_version": "2.0.0",
+      "sha256": "16f1bb825f2e02e700a67477c473ecfb1c08a4efec7d4968c22a3aa312c7235e",
+      "algorithm": "sha-256",
+      "locked": true
+    },
+    "deterministic_engine": {
+      "_doc": "FC §8: Output = f(A, C, P). For identical A,C,P output must be identical across machines, deployments, jurisdictions, time.",
+      "version": "1.0.0",
+      "hash_algorithm": "sha-256",
+      "hash_encoding": "hex-lower",
+      "concat_method": "length-prefixed-8be",
+      "unicode_normalisation": "NFC",
+      "number_rules": "no-scientific;trim-trailing-zeros;minus-zero-forbidden",
+      "key_ordering": "lexicographic-utf8-bytes",
+      "locked": true
+    },
+    "kernel_bundle_hash": "c3429a2d4a8fd14de008f387fe80c0d7201b304658dba5ed05db6f018707d95b",
+    "kernel_files": {
+      "kernel/arbitration/arbitration.py": "92e27ae4cc08a166ba4cfb0959a9405c2ae929a4a60f0c45b8c990adcdbce3e2",
+      "kernel/canon/canon.py": "b667eee64b001c6ca0447817f51c8c932361271d23376ed735ddfc9c8b68db6f",
+      "kernel/hashing/algorithms.py": "f433336fadec7261c238636d817f72fe068bb173754bda49710e136f55d3ca8f",
+      "kernel/negative_proof/negative_proof.py": "c14943c86e705fbce28e7c26c488c7b9d2c327462a2628d1c7b0eaa3732faa70",
+      "kernel/validation/invariants.py": "e3e530b0e459263cfa440209c21f14a9b78878de4545c02ef2f444d601161751"
+    },
+    "invariant_version": "1.0.0",
+    "negative_proof_version": "1.0.0",
+    "max_active_frontier": 16,
+    "arbitration_version": "1.0.0"
+  },
+  "layer_1_capability_defaults": {
+    "_doc": "Layer 1 — Capability Negotiation (FC §3). Default capability set for LOCKFILE_VERSION 1.0.0. Capabilities are versioned and selection is deterministic. New capabilities may be added without version fracture.",
+    "hash_algorithms": [
+      "sha256.v1"
+    ],
+    "proof_types": [
+      "negative_proof.v1",
+      "replay_pack.v1"
+    ],
+    "mirror_modes": [
+      "public.v1",
+      "private.v1",
+      "selective.v1"
+    ],
+    "policy_engine": [
+      "default.v1"
+    ],
+    "active_frontier_max": 16,
+    "capability_selection_is_stored_with_artefact": true
+  },
+  "layer_2_policy_defaults": {
+    "_doc": "Layer 2 — Policy Layer (FC §4). Policies are artefacts. Policies are hashed. Policy version is stored with arbitration output. Policy changes do not change protocol.",
+    "mirror_visibility_default": "PRIVATE",
+    "dissent_threshold_default": "majority",
+    "retention_policy_default": "retain-7-years",
+    "audit_export_format_default": "aiep.audit.v1"
+  },
+  "adapter_registry": {
+    "_doc": "FC §6 — Adapter Doctrine. Permitted adapters. Adapters must be deterministic for given input, must not mutate kernel state, must not override arbitration result.",
+    "permitted_adapters": [
+      "StorageAdapter",
+      "RegistryAdapter",
+      "MirrorAdapter",
+      "PolicyEvaluatorAdapter"
+    ],
+    "adapter_rules": {
+      "deterministic": true,
+      "no_kernel_state_mutation": true,
+      "no_time_based_randomness": true,
+      "no_arbitration_override": true
+    }
+  },
+  "version_fracture_triggers": {
+    "_doc": "FC §9 — Version Fracture Rule. Actions that require new GENOME version.",
+    "requires_version_fracture": [
+      "change to arbitration logic",
+      "change to validation algorithm",
+      "change to negative proof logic",
+      "change to canonical schema enforcement",
+      "change to hash algorithm default",
+      "change to max_active_frontier",
+      "change to invariant definitions I1-I6"
+    ],
+    "does_not_require_version_fracture": [
+      "new adapter implementation",
+      "new enterprise UI",
+      "new policy file",
+      "new mirror visibility rule",
+      "new deployment infrastructure",
+      "new capability added to layer_1",
+      "new policy added to layer_2"
+    ]
+  },
+  "flexibility_test": {
+    "_doc": "FC §11 — The Flexibility Test. A requested change is valid if it can be expressed as one of these. If it requires editing kernel logic it is a new protocol version.",
+    "valid_change_forms": [
+      "a policy change (Layer 2)",
+      "a capability selection (Layer 1)",
+      "an adapter swap (FC §6)",
+      "an enterprise-layer enhancement (Layer 3)"
+    ]
+  },
+  "mutation_rules": {
+    "rule": "AIEP-NMR-001",
+    "fc_reference": "FC §2",
+    "statement": "No field in layer_0_locks may be modified in-place. Any change requires new LOCKFILE_VERSION. All downstream repos pinning this version will detect the change via kernel_bundle_hash mismatch.",
+    "version_increment_required": true,
+    "registry_update_required": true,
+    "mirror_broadcast": "optional but recorded"
+  },
+  "replay_requirement": {
+    "rule": "AIEP-REPLAY-001",
+    "fc_reference": "FC §8",
+    "statement": "Any two systems with identical Evidence Ledger, Reasoning Ledger, capability set C, policy set P, and LOCKFILE_VERSION MUST produce identical pack_hash. If they do not, one or both systems are non-conformant. Fail closed per FC §2."
+  },
+  "security_invariants": {
+    "_doc": "FC §10 — Security posture documented per version.",
+    "hash_collision_policy": "AIEP-HASH-COLLISION-001",
+    "replay_attack_mitigation": "AIEP-REPLAY-001 + schema_version_id + collection_ts in all commitments",
+    "registry_compromise_response": "kernel_bundle_hash verification at startup; LOCKFILE mismatch triggers fail-closed",
+    "timeout_policy": "AIEP-TIMEOUT-001: deterministic ops have no timeout; network ops carry schema-defined timeout",
+    "fail_closed_diagram": "security/threat_model.md §5.4"
+  }
+}
