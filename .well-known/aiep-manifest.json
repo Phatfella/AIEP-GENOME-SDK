@@ -1,12 +1,12 @@
 {
   "aiep_version": "2.0.0",
-  "capability_hash": "109ecb7631b7a3dabf07294a856ad655f3aaaf1da9fa086970105a6757d34ed4",
-  "generated_at": "2026-03-28T03:58:15Z",
-  "index_root_hash": "a5ebfc71085a2f923d0f7c0eed60d20409e0726b1d863035b04165b2b6460fd0",
-  "lockfile_version": "1.0.0",
-  "manifest_hash": "eafa3ca5382c2e96820a2e41612c6b6c5392ab88be6de8850580f258f9fe7c9d",
-  "page_count": 1,
-  "policy_hash": "bb69dea9e036fff44c44de4df8ea6ee361582aadbf8484e44ce4fb0a42a06f4b",
   "schema_version": "2.0.0",
-  "site": "https://github.com/aiep-protocol/AIEP-GENOME-SDK"
+  "lockfile_version": "1.0.0",
+  "capability_hash": "0e95c39a434b16e22ddcb87b68fb93cbb4bde575269a20ab186d935e2a53c81e",
+  "policy_hash": "0c519b40c065a3e606c6ce7f7af055b7478aacf2bc1fba1c57dff3d0b93fd27d",
+  "site": "https://github.com/Phatfella/AIEP-GENOME-SDK",
+  "page_count": 3,
+  "index_root_hash": "181da488e3e9b921a51f8d015ae8ff3f47e89f55f9b65d1ff6defaf73f8536a3",
+  "generated_at": "2026-04-09T20:03:19Z",
+  "manifest_hash": "2b8b83ef0e981500c63bd10fd08c3b511f42d06fe4916ed38b10762c56c1808a"
 }

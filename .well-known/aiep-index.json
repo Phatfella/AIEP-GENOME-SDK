@@ -1,14 +1,36 @@
 {
   "aiep_version": "2.0.0",
+  "lockfile_version": "1.0.0",
+  "site": "https://github.com/Phatfella/AIEP-GENOME-SDK",
+  "generated_at": "2026-04-09T20:03:19Z",
+  "index_root_hash": "181da488e3e9b921a51f8d015ae8ff3f47e89f55f9b65d1ff6defaf73f8536a3",
   "entries": [
     {
-      "content_hash": "sha256:fb1fed39bfbc1d4e344596add8f3ccd4ac696ef8bb82d832e76884ab5635d69f",
-      "source_url": "https://github.com/aiep-protocol/AIEP-GENOME-SDK/blob/main/README.md",
-      "title": "AIEP-GENOME-SDK"
+      "aiep_version": "2.0.0",
+      "lockfile_version": "1.0.0",
+      "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/CHANGELOG.md",
+      "title": "Changelog",
+      "content_hash": "sha256:4084c669994b4e1a2f9e68d1dad7bc6d3b935718d3a5b64b445ab47d53c9780c",
+      "last_modified": "2026-04-09T18:52:16+01:00",
+      "index_hash": "0514ffff2fe7a7dd5aeb832ec653748ceeffeb5e2e4109e8686fceef691556bd"
+    },
+    {
+      "aiep_version": "2.0.0",
+      "lockfile_version": "1.0.0",
+      "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/FLEXIBILITY_CONTRACT.md",
+      "title": "AIEP GENOME — Flexibility Contract v1.0",
+      "content_hash": "sha256:85d7ff6c1cf4d581fe1e96df16632f42409daf119b48fdb01c256ebc3ad8f678",
+      "last_modified": "2026-04-09T18:52:16+01:00",
+      "index_hash": "a1877847220ea15e2b8fb3408f132286528c07bee267f4d46b7cff45a0bef683"
+    },
+    {
+      "aiep_version": "2.0.0",
+      "lockfile_version": "1.0.0",
+      "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/README.md",
+      "title": "AIEP GENOME SDK v1.1 — Kernel Architecture",
+      "content_hash": "sha256:1b81e1570e44f6c1394a1f5450c399d1a001e4c09034533b5df7d5c2cf9a9aff",
+      "last_modified": "2026-04-09T21:00:15+01:00",
+      "index_hash": "c24df90d33e3627f0dd116177af5342029c0fc0e0aa4fb78699712adf82a6f8f"
     }
-  ],
-  "generated_at": "2026-03-28T03:58:15Z",
-  "index_root_hash": "a5ebfc71085a2f923d0f7c0eed60d20409e0726b1d863035b04165b2b6460fd0",
-  "lockfile_version": "1.0.0",
-  "site": "https://github.com/aiep-protocol/AIEP-GENOME-SDK"
+  ]
 }

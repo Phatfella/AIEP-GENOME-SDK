@@ -1,0 +1,29 @@
+{
+  "schema_id": "aiep.mirror.v1",
+  "schema_version": "2.0.0",
+  "lockfile_version": "1.0.0",
+  "capability_hash": "0e95c39a434b16e22ddcb87b68fb93cbb4bde575269a20ab186d935e2a53c81e",
+  "policy_hash": "0c519b40c065a3e606c6ce7f7af055b7478aacf2bc1fba1c57dff3d0b93fd27d",
+  "content_hash": "4084c669994b4e1a2f9e68d1dad7bc6d3b935718d3a5b64b445ab47d53c9780c",
+  "page_id": "4084c669994b4e1a2f9e68d1dad7bc6d3b935718d3a5b64b445ab47d53c9780c",
+  "generated_at": "2026-04-09T20:03:19Z",
+  "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/CHANGELOG.md",
+  "visibility": "PUBLIC",
+  "data": {
+    "url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/CHANGELOG.md",
+    "canonical_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/CHANGELOG.md",
+    "title": "Changelog",
+    "lang": "en",
+    "canonical_text": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nFormat follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).\n`LOCKFILE_VERSION` changes are noted as breaking (Version Fracture per FC §9).\n\n## [Unreleased]\n\n## [1.0.0] — 2026-03-08\n\n### Added\n- Initial release implementing R1-R8 (AIEP GENOME SDK - Frozen Kernel)\n- Deterministic canonical engine (R1–R8, LOCKFILE 1.0.0)\n- Full test suite with 0 external runtime dependencies\n- GENOME_LOCKFILE.json, LICENSE (Apache 2.0), SHA256SUMS.txt\n",
+    "headings": [
+      "Changelog",
+      "[Unreleased]",
+      "[1.0.0] — 2026-03-08",
+      "Added"
+    ],
+    "links": [],
+    "images": [],
+    "meta": {},
+    "structured_data": []
+  }
+}

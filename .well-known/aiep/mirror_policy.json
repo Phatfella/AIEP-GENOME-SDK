@@ -1,11 +1,12 @@
 {
-  "aiep_version": "2.0.0",
-  "enabled": true,
-  "lockfile_version": "1.0.0",
-  "mirror_version": "aiep-mirror-py-v2.1.0",
-  "policy_hash": "bb69dea9e036fff44c44de4df8ea6ee361582aadbf8484e44ce4fb0a42a06f4b",
-  "private_prefixes": [],
-  "public_prefixes": [],
   "schema_version": "2.0.0",
-  "visibility_default": "PRIVATE"
+  "lockfile_version": "1.0.0",
+  "enabled": true,
+  "visibility_default": "PUBLIC",
+  "public_prefixes": [
+    "/"
+  ],
+  "private_prefixes": [],
+  "mirror_version": "aiep-mirror-py-v2.1.0",
+  "policy_hash": "0c519b40c065a3e606c6ce7f7af055b7478aacf2bc1fba1c57dff3d0b93fd27d"
 }

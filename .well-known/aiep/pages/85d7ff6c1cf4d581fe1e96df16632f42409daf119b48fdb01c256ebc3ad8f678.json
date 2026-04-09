@@ -1,0 +1,30 @@
+{
+  "schema_id": "aiep.mirror.v1",
+  "schema_version": "2.0.0",
+  "lockfile_version": "1.0.0",
+  "capability_hash": "0e95c39a434b16e22ddcb87b68fb93cbb4bde575269a20ab186d935e2a53c81e",
+  "policy_hash": "0c519b40c065a3e606c6ce7f7af055b7478aacf2bc1fba1c57dff3d0b93fd27d",
+  "content_hash": "85d7ff6c1cf4d581fe1e96df16632f42409daf119b48fdb01c256ebc3ad8f678",
+  "page_id": "85d7ff6c1cf4d581fe1e96df16632f42409daf119b48fdb01c256ebc3ad8f678",
+  "generated_at": "2026-04-09T20:03:19Z",
+  "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/FLEXIBILITY_CONTRACT.md",
+  "visibility": "PUBLIC",
+  "data": {
+    "url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/FLEXIBILITY_CONTRACT.md",
+    "canonical_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/FLEXIBILITY_CONTRACT.md",
+    "title": "AIEP GENOME — Flexibility Contract v1.0",
+    "lang": "en",
+    "canonical_text": "# AIEP GENOME — Flexibility Contract v1.0\n\n**Document:** AIEP-FC-001  \n**Status:** Binding Architectural Constraint  \n**Version:** 1.0.0  \n**Applies to:** All AIEP GENOME SDK builds and downstream SaaS systems\n\nSee `AIEP_GENOME_Flexibility_Contract_v1.0.docx` for the full binding specification.\n\n## Quick Reference\n\n```\nLayer 0 — Kernel        FROZEN   kernel/LOCKFILE.json\nLayer 1 — Capability    VERSIONED governance/capability/\nLayer 2 — Policy        GOVERNED  governance/policy_engine/\nLayer 3 — Enterprise    FREE      enterprise/\n```\n\n## The Flexibility Test (FC §11)\n\nA requested change is valid without version fracture if it can be expressed as:\n- A policy change (Layer 2)\n- A capability selection (Layer 1)  \n- An adapter swap (FC §6)\n- An enterprise-layer enhancement (Layer 3)\n\nIf it requires editing kernel logic → it is a new protocol version.\n\n## Determinism Proof\n\n`Output = f(A, C, P)` — see `examples/governance_trace_v1/` for six locked reference hashes\nproving determinism at all three flexible layers.\n\n## Reference Hashes (governance_trace_v1)\n\n| Layer | Hash type | Value |\n|-------|-----------|-------|\n| L0 | evidence_commitment | `1e73514dd9ec110ec3b647295df4ba6341522701db11f46c0742e46f6b79adab` |\n| L0 | pack_hash | `fb73d77f0d84babd7b775406dd11bfad4ce4accef98c41fa7840ef3e5313404b` |\n| L0 | negative_proof_hash | `6413c93503255f608311e1fae9a2caacb2079b1b87137fc3f81eae64baf46d5d` |\n| L1 | capability_hash | `80b0a0ee9254de1694acb33b46d7e7a5d279ee68bf29cab67fa757d81b13dd3c` |\n| L2 | policy_hash | `d326f997a85041af0c15f1caeea44d0a9d63f4418699c6298255e3c040ebc3ca` |\n| Combined | H(ev ‖ cap ‖ pol) | `455b712ece1793097089e4d11cdbd6ae48a81aa889ef5e33eaccaeae8923b311` |\n",
+    "headings": [
+      "AIEP GENOME — Flexibility Contract v1.0",
+      "Quick Reference",
+      "The Flexibility Test (FC §11)",
+      "Determinism Proof",
+      "Reference Hashes (governance_trace_v1)"
+    ],
+    "links": [],
+    "images": [],
+    "meta": {},
+    "structured_data": []
+  }
+}

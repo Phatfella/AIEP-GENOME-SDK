@@ -1,0 +1,34 @@
+{
+  "schema_id": "aiep.mirror.v1",
+  "schema_version": "2.0.0",
+  "lockfile_version": "1.0.0",
+  "capability_hash": "0e95c39a434b16e22ddcb87b68fb93cbb4bde575269a20ab186d935e2a53c81e",
+  "policy_hash": "0c519b40c065a3e606c6ce7f7af055b7478aacf2bc1fba1c57dff3d0b93fd27d",
+  "content_hash": "1b81e1570e44f6c1394a1f5450c399d1a001e4c09034533b5df7d5c2cf9a9aff",
+  "page_id": "1b81e1570e44f6c1394a1f5450c399d1a001e4c09034533b5df7d5c2cf9a9aff",
+  "generated_at": "2026-04-09T20:03:19Z",
+  "source_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/README.md",
+  "visibility": "PUBLIC",
+  "data": {
+    "url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/README.md",
+    "canonical_url": "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/README.md",
+    "title": "AIEP GENOME SDK v1.1 — Kernel Architecture",
+    "lang": "en",
+    "canonical_text": "# AIEP GENOME SDK v1.1 — Kernel Architecture\n\n[![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)\n[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)\n[![Release](https://img.shields.io/github/v/tag/Phatfella/AIEP-GENOME-SDK?label=release)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases)\n\n**Architected Instruction and Evidence Protocol**  \n**Classification:** Protocol Reference Implementation + Production SaaS Foundation  \n**Kernel:** FROZEN at v1.0.0\n\n---\n\n## Architecture\n\n```\nAIEP-GENOME-SDK/\n│\n├── kernel/                 ← FROZEN. Cryptographic OS kernel.\n│   ├── canon/              ← Canonical serialisation (R1–R8)\n│   ├── hashing/            ← Algorithm registry + collision policy\n│   ├── validation/         ← Invariants I1–I6, GateResult\n│   ├── negative_proof/     ← Temporal gap commitment (P16)\n│   ├── arbitration/        ← Constitutional arbitration (Layer 1)\n│   └── LOCKFILE.json       ← Kernel checksum. Mutation = version fracture.\n│\n├── governance/             ← Protocol logic above kernel\n│   ├── policy_engine/\n│   ├── dissent_registry/\n│   ├── replay_engine/      ← Third-party verification (AIEP-REPLAY-001)\n│   └── audit_export/\n│\n├── mirror/                 ← First-class. Not bolt-on.\n│   ├── visibility_controller/\n│   ├── registry_interface/\n│   ├── public_adapter/\n│   ├── private_adapter/\n│   └── mirror_policy.json  ← All artefacts mirrorable. Visibility governed.\n│\n├── enterprise/             ← Configuration only. Never logic.\n│   ├── auth/\n│   ├── tenancy/\n│   ├── access_control/\n│   └── config/             ← What operators may configure (and what they may not)\n│\n├── examples/\n│   ├── deterministic_trace_v1/  ← Executable conformance proof\n│   └── governance_trace_v1/\n│\n└── security/\n    ├── threat_model.md     ← AV-001 through AV-008\n    ├── hash_assumptions.md ← SHA-256 assumptions + migration path\n    └── attack_surface.md   ← Layer boundary rules\n```\n\n---\n\n## The Kernel is Frozen\n\n`kernel/` contains zero UI logic. Zero SaaS configuration. Zero external dependencies beyond Python stdlib.\n\nAny change to any file in `kernel/` requires:\n1. New `LOCKFILE_VERSION`\n2. New `KERNEL_VERSION` in affected module\n3. Registry update\n4. All downstream repos re-pin\n\nThis is not a feature release. It is a constitutional amendment.\n\n**Check current kernel freeze:** `cat kernel/LOCKFILE.json`\n\n---\n\n## Deterministic Replay\n\nRun the conformance proof:\n\n```bash\npython examples/deterministic_trace_v1/trace.py\n```\n\nExpected output hashes (any conformant implementation must match):\n\n| Step | Expected Hash |\n|------|---------------|\n| Canonical JSON (step 1) | `7da3d0cf50986a44d34dfd66e46d54b26d6685d508dfdada80f79153c855d7e8` |\n| EvidenceCommitment (step 2) | `3bc275ffb68f68e72c9e71c20e1fdf5f924c9b16298426f0bfe29a225a5ad4af` |\n| ReplayPack hash (step 5) | `827955f221a3115fe0d58e43f3bacfe9e0490c45d0aed7dbd4d6884a4e8d4075` |\n| NegativeProof hash (step 6) | `5309c9344c1bc9af01f46a79dd07ec27975a6dec58509b55b2fdf870093bff56` |\n\nIf your run produces different hashes: your implementation has a canonicalisation defect.\n\n---\n\n## Layer Boundary Rules\n\n| Layer | May call | May NOT call | May NOT do |\n|-------|----------|--------------|------------|\n| `kernel/` | itself | anything outside `kernel/` | network, filesystem, UI, config |\n| `governance/` | `kernel/` | `enterprise/`, `mirror/` directly | modify kernel logic |\n| `mirror/` | `kernel/`, `governance/` | `enterprise/` | override content_hash |\n| `enterprise/` | all layers | — | modify kernel arbitration, inject alternative validation, override deterministic state |\n\n**Violation of layer boundaries is a constitutional violation, not a configuration error.**\n\n---\n\n## What Enterprise Config May Control\n\n✅ Mirror visibility (PUBLIC / PRIVATE / SELECTIVE)  \n✅ Storage backend and location  \n✅ Authentication provider  \n✅ Multi-tenancy mode  \n\n❌ Kernel hash algorithm  \n❌ Unicode normalisation mode  \n❌ Invariant definitions  \n❌ MAX_ACTIVE_FRONTIER  \n❌ Constitutional constraints  \n\n---\n\n## Mirror Policy\n\nAll artefacts are mirrorable. Visibility is governed, not optional at code level.\n\nDefault visibility:\n- Hub deployments: `PUBLIC`\n- GENOME SaaS deployments: `PRIVATE`\n- Per-record override: available under `SELECTIVE` mode\n\nMirror `content_hash = sha256(canonical_json(data))` is a kernel-level binding. It cannot be overridden.\n\nSee `mirror/mirror_policy.json`.\n\n---\n\n## Security\n\nSee `security/` for:\n- `threat_model.md` — 8 attack vectors, controls, residual risk\n- `hash_assumptions.md` — SHA-256 assumptions, migration path\n- `attack_surface.md` — Layer boundary rules, per-component surface\n\n---\n\n## Licence\n\nApache License 2.0. See `LICENSE`.\n",
+    "headings": [
+      "AIEP GENOME SDK v1.1 — Kernel Architecture",
+      "Architecture",
+      "The Kernel is Frozen",
+      "Deterministic Replay",
+      "Layer Boundary Rules",
+      "What Enterprise Config May Control",
+      "Mirror Policy",
+      "Security",
+      "Licence"
+    ],
+    "links": [],
+    "images": [],
+    "meta": {},
+    "structured_data": []
+  }
+}
