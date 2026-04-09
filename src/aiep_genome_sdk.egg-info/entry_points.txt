@@ -1,2 +1,0 @@
-[console_scripts]
-aiep-genome = aiep_genome.__main__:main
