@@ -42,11 +42,11 @@ jobs:
               try:
                   actual = hashlib.sha256(pathlib.Path(fp).read_bytes()).hexdigest()
                   if actual != sha:
-                      print(f'MISMATCH: {{fp}}')
+                      print(f'MISMATCH: {fp}')
                       fails += 1
               except FileNotFoundError:
-                  print(f'MISSING: {{fp}}')
+                  print(f'MISSING: {fp}')
                   fails += 1
-          print(f'SHA256SUMS: {{fails}} failures')
+          print(f'SHA256SUMS: {fails} failures')
           sys.exit(1 if fails else 0)
           "
