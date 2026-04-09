@@ -23,7 +23,7 @@ VERIFIER_VERSION     = "1.0.0"
 CANON_SPEC_VERSION   = "1.0.0"
 KERNEL_VERSION       = "1.0.0"
 LOCKFILE_VERSION     = "1.0.0"
-VECTOR_PACK_VERSION  = "1.0.0"
+VECTOR_PACK_VERSION  = "1.1.0"
 CANON_BLOBSHA        = "3b100b43bf59ce6f6d35397e8c8c173a4447de5d"
 ARBITRATION_BLOBSHA  = "567e917d544d62691bca7dd95cb3214ddc868cce"
 
@@ -473,6 +473,154 @@ def _run_dis(v: dict) -> tuple:
     return True, (f"both branches preserved: "
                   f"HIGH {h_high[:12]}... != LOW {h_low[:12]}...")
 
+# ── Phase 12e: Standalone implementations of new kernel primitives ────────────
+# These mirror canon.py exactly. Separate implementation = independent
+# verification: if both agree, the spec is unambiguous.
+
+def _sv_dissent_hash(branch_id: str, conclusion_hash: str, position: str,
+                     dissenting_evidence: list, sv: str) -> str:
+    return concat_hash(branch_id, conclusion_hash, position,
+                       canonical_json(dissenting_evidence), sv)
+
+def _sv_context_reconstruction_hash(artefact_hashes: list, ordering_rule: str,
+                                     sv: str) -> str:
+    return concat_hash(canonical_json(sorted(artefact_hashes)), ordering_rule, sv)
+
+def _sv_recall_scope_hash(archived_dissent_hash: str, eligible_trigger_domains: list,
+                           threshold_str: str, sv: str) -> str:
+    return concat_hash(
+        archived_dissent_hash,
+        canonical_json(sorted(eligible_trigger_domains)),
+        threshold_str, sv
+    )
+
+def _sv_consensus_record_hash(branch_id: str, global_dominance_state: str,
+                               contributing_hashes: list, sv: str) -> str:
+    return concat_hash(
+        branch_id, global_dominance_state,
+        canonical_json(sorted(contributing_hashes)), sv
+    )
+
+def _sv_swarm_inclusion_proof(consensus_hash: str, contributing_hashes: list,
+                               excluded_hashes: list, exclusion_reasons: dict,
+                               sv: str) -> str:
+    return concat_hash(
+        consensus_hash,
+        canonical_json(sorted(contributing_hashes)),
+        canonical_json(sorted(excluded_hashes)),
+        canonical_json(exclusion_reasons), sv
+    )
+
+
+def _run_dis_hash(v: dict) -> tuple:
+    """
+    dissent-hash suite.
+    DIS-002: position field changes the hash (tamper-evident).
+    """
+    inp = v["input"]
+    exp = v["expected"]
+    sv  = inp["schema_version_id"]
+
+    h_reject  = _sv_dissent_hash(
+        inp["branch_id"], inp["conclusion_hash"],
+        "reject", inp["dissenting_evidence"], sv)
+    h_archive = _sv_dissent_hash(
+        inp["branch_id"], inp["conclusion_hash"],
+        "archive", inp["dissenting_evidence"], sv)
+
+    failures = []
+    if h_reject != exp["hash_position_reject"]:
+        failures.append(f"reject MISMATCH: got {h_reject[:16]}..., "
+                        f"expected {exp['hash_position_reject'][:16]}...")
+    if h_archive != exp["hash_position_archive"]:
+        failures.append(f"archive MISMATCH: got {h_archive[:16]}..., "
+                        f"expected {exp['hash_position_archive'][:16]}...")
+    if h_reject == h_archive:
+        failures.append("POSITION NOT TAMPER-EVIDENT: reject == archive hash")
+    if failures:
+        return False, " | ".join(failures)
+    return True, f"position-tamper-evident: reject {h_reject[:12]}... != archive {h_archive[:12]}..."
+
+
+def _run_recall(v: dict) -> tuple:
+    """
+    recall suite.
+    RECALL-001: context_reconstruction_hash is order-independent.
+    RECALL-002: recall_scope_hash is deterministic.
+    """
+    inp    = v["input"]
+    exp    = v["expected"]
+    sv     = inp["schema_version_id"]
+    vid    = v.get("vector_id", "")
+
+    if vid == "recall-001" or "artefact_hashes_order_a" in inp:
+        h_a = _sv_context_reconstruction_hash(
+            inp["artefact_hashes_order_a"], inp["canonical_ordering_rule"], sv)
+        h_b = _sv_context_reconstruction_hash(
+            inp["artefact_hashes_order_b"], inp["canonical_ordering_rule"], sv)
+        expected_h = exp["context_reconstruction_hash"]
+        failures = []
+        if h_a != expected_h:
+            failures.append(f"order_a MISMATCH: got {h_a[:16]}...")
+        if h_b != expected_h:
+            failures.append(f"order_b MISMATCH: got {h_b[:16]}...")
+        if h_a != h_b:
+            failures.append("ORDER-DEPENDENT: order_a != order_b")
+        if failures:
+            return False, " | ".join(failures)
+        return True, f"order-independent: {h_a[:16]}..."
+    else:
+        h = _sv_recall_scope_hash(
+            inp["archived_dissent_hash"],
+            inp["eligible_trigger_domains"],
+            inp["plausibility_threshold_str"], sv)
+        expected_h = exp["recall_scope_hash"]
+        if h != expected_h:
+            return False, f"MISMATCH: got {h[:16]}..., expected {expected_h[:16]}..."
+        return True, f"recall scope committed: {h[:16]}..."
+
+
+def _run_swarm(v: dict) -> tuple:
+    """
+    swarm suite.
+    SWARM-001: consensus_record_hash is order-independent.
+    SWARM-002: swarm_inclusion_proof commits exclusions.
+    """
+    inp = v["input"]
+    exp = v["expected"]
+    sv  = inp["schema_version_id"]
+    vid = v.get("vector_id", "")
+
+    if vid == "swarm-001" or "contributing_hashes_order_a" in inp:
+        h_a = _sv_consensus_record_hash(
+            inp["branch_id"], inp["global_dominance_state"],
+            inp["contributing_hashes_order_a"], sv)
+        h_b = _sv_consensus_record_hash(
+            inp["branch_id"], inp["global_dominance_state"],
+            inp["contributing_hashes_order_b"], sv)
+        expected_h = exp["consensus_record_hash"]
+        failures = []
+        if h_a != expected_h:
+            failures.append(f"order_a MISMATCH: got {h_a[:16]}...")
+        if h_b != expected_h:
+            failures.append(f"order_b MISMATCH: got {h_b[:16]}...")
+        if h_a != h_b:
+            failures.append("ORDER-DEPENDENT: order_a != order_b")
+        if failures:
+            return False, " | ".join(failures)
+        return True, f"order-independent consensus: {h_a[:16]}..."
+    else:
+        h = _sv_swarm_inclusion_proof(
+            inp["consensus_record_hash"],
+            inp["contributing_hashes"],
+            inp["excluded_hashes"],
+            inp["exclusion_reasons"], sv)
+        expected_h = exp["swarm_inclusion_proof"]
+        if h != expected_h:
+            return False, f"MISMATCH: got {h[:16]}..., expected {expected_h[:16]}..."
+        return True, f"exclusion committed: {h[:16]}..."
+
+
 # Dispatch table -- no fallback, no implicit pass
 _SUITE_RUNNERS = {
     "deterministic-replay":  _run_det,
@@ -480,6 +628,9 @@ _SUITE_RUNNERS = {
     "negative-proof":        _run_neg,
     "admissibility":         _run_adm,
     "dissent-preservation":  _run_dis,
+    "dissent-hash":          _run_dis_hash,
+    "recall":                _run_recall,
+    "swarm":                 _run_swarm,
 }
 
 # ===============================================================
