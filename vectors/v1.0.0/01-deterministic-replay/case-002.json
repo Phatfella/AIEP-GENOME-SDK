@@ -1,8 +1,18 @@
 {
     "vector_id": "AIEP-TV-DET-002",
     "suite": "deterministic-replay",
+    "profile": "core",
     "kernel_version": "1.0.0",
+    "lockfile_version": "1.0.0",
+    "canon_spec_version": "1.0.0",
     "schema_version_id": "aiep.canonical.v2.0.0",
+    "canon_rules_exercised": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R8"
+    ],
     "description": "Unicode NFC normalisation: NFD-encoded and NFC-encoded inputs with identical logical content produce identical pack_hash (R3).",
     "input": {
         "evidence_ledger": [

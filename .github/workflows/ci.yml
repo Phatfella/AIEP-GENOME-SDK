@@ -53,5 +53,8 @@ jobs:
           sys.exit(1 if fails else 0)
           "
 
+      - name: AIEP canon self-test
+        run: aiep-verify --self-test
+
       - name: Run conformance test vectors
         run: aiep-verify --vectors vectors/v1.0.0/

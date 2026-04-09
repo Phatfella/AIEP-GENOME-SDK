@@ -1,18 +1,24 @@
 {
-    "vector_id": "AIEP-TV-ADM-002",
-    "suite": "admissibility",
-    "kernel_version": "1.0.0",
-    "schema_version_id": "aiep.canonical.v2.0.0",
-    "description": "Unresolved dissent (position=reject) blocks advancement even with gate OPEN and plausible evidence (CC-004).",
-    "input": {
-        "plausibility_status": "plausible",
-        "dissent_final_position": "reject",
-        "gate_status": "OPEN"
-    },
-    "expected": {
-        "admissible": false,
-        "reason": "CC-004: Dissent unresolved \u2014 conclusion contested or escalated"
-    },
-    "constitutional_constraint": "CC-004",
-    "notes": "A contested conclusion cannot advance. The dissent must be structurally resolved first. This is what distinguishes AIEP from systems that collapse conflicting evidence to a single confident output."
+  "vector_id": "AIEP-TV-ADM-002",
+  "suite": "admissibility",
+  "profile": "core",
+  "kernel_version": "1.0.0",
+  "lockfile_version": "1.0.0",
+  "canon_spec_version": "1.0.0",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": [
+    "CC-004"
+  ],
+  "description": "Unresolved dissent (position=reject) blocks advancement even with gate OPEN and plausible evidence (CC-004).",
+  "input": {
+    "plausibility_status": "plausible",
+    "dissent_final_position": "reject",
+    "gate_status": "OPEN"
+  },
+  "expected": {
+    "admissible": false,
+    "reason": "CC-004: Dissent unresolved — conclusion contested or escalated"
+  },
+  "constitutional_constraint": "CC-004",
+  "notes": "A contested conclusion cannot advance. The dissent must be structurally resolved first. This is what distinguishes AIEP from systems that collapse conflicting evidence to a single confident output."
 }

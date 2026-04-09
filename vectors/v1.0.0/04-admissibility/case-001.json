@@ -1,18 +1,24 @@
 {
-    "vector_id": "AIEP-TV-ADM-001",
-    "suite": "admissibility",
-    "kernel_version": "1.0.0",
-    "schema_version_id": "aiep.canonical.v2.0.0",
-    "description": "Gate CLOSED produces admissible=false regardless of plausibility or dissent state (CC-005: fail-closed is the constitutional default).",
-    "input": {
-        "plausibility_status": "plausible",
-        "dissent_final_position": null,
-        "gate_status": "CLOSED"
-    },
-    "expected": {
-        "admissible": false,
-        "reason": "CC-005: Gate is CLOSED \u2014 fail-closed constitutional default"
-    },
-    "constitutional_constraint": "CC-005",
-    "notes": "Even a fully plausible conclusion with no dissent is blocked when gate_status=CLOSED. OPEN must be explicitly set. This is the only safe default for an enterprise AI governance system."
+  "vector_id": "AIEP-TV-ADM-001",
+  "suite": "admissibility",
+  "profile": "core",
+  "kernel_version": "1.0.0",
+  "lockfile_version": "1.0.0",
+  "canon_spec_version": "1.0.0",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": [
+    "CC-005"
+  ],
+  "description": "Gate CLOSED produces admissible=false regardless of plausibility or dissent state (CC-005: fail-closed is the constitutional default).",
+  "input": {
+    "plausibility_status": "plausible",
+    "dissent_final_position": null,
+    "gate_status": "CLOSED"
+  },
+  "expected": {
+    "admissible": false,
+    "reason": "CC-005: Gate is CLOSED — fail-closed constitutional default"
+  },
+  "constitutional_constraint": "CC-005",
+  "notes": "Even a fully plausible conclusion with no dissent is blocked when gate_status=CLOSED. OPEN must be explicitly set. This is the only safe default for an enterprise AI governance system."
 }

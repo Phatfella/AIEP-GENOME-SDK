@@ -1,18 +1,27 @@
 {
-    "vector_id": "AIEP-TV-DET-003",
-    "suite": "deterministic-replay",
-    "kernel_version": "1.0.0",
-    "schema_version_id": "aiep.canonical.v2.0.0",
-    "description": "Empty evidence and reasoning ledgers produce a defined, deterministic pack_hash. Empty is a valid (though inadmissible) state — it must hash consistently.",
-    "input": {
-        "evidence_ledger": [],
-        "reasoning_ledger": [],
-        "schema_version_id": "aiep.canonical.v2.0.0"
-    },
-    "expected": {
-        "pack_hash": "740e32815638380f6eedcf2901dee7961aee1245153a063826bdbb5250e350b3"
-    },
-    "deterministic": true,
-    "cross_platform": true,
-    "notes": "This state would fail admissibility (no evidence = no evidential basis). It must still hash deterministically — the hash is of the state, independent of whether the state is admissible."
+  "vector_id": "AIEP-TV-DET-003",
+  "suite": "deterministic-replay",
+  "profile": "core",
+  "kernel_version": "1.0.0",
+  "lockfile_version": "1.0.0",
+  "canon_spec_version": "1.0.0",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": [
+    "R1",
+    "R2",
+    "R4",
+    "R8"
+  ],
+  "description": "Empty evidence and reasoning ledgers produce a defined, deterministic pack_hash. Empty is a valid (though inadmissible) state — it must hash consistently.",
+  "input": {
+    "evidence_ledger": [],
+    "reasoning_ledger": [],
+    "schema_version_id": "aiep.canonical.v2.0.0"
+  },
+  "expected": {
+    "pack_hash": "740e32815638380f6eedcf2901dee7961aee1245153a063826bdbb5250e350b3"
+  },
+  "deterministic": true,
+  "cross_platform": true,
+  "notes": "This state would fail admissibility (no evidence = no evidential basis). It must still hash deterministically — the hash is of the state, independent of whether the state is admissible."
 }

@@ -1,0 +1,216 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://aiep.protocol/schemas/test-vector/v1.0.0",
+    "title": "AIEP Conformance Test Vector",
+    "description": "Schema for AIEP GENOME SDK conformance test vectors. See CANON_SPEC.md for canonical rule definitions.",
+    "type": "object",
+    "required": [
+        "vector_id",
+        "suite",
+        "kernel_version",
+        "schema_version_id",
+        "profile",
+        "lockfile_version",
+        "canon_spec_version"
+    ],
+    "properties": {
+        "vector_id": {
+            "type": "string",
+            "pattern": "^AIEP-TV-[A-Z]+-[0-9]+$",
+            "description": "Unique vector identifier. Format: AIEP-TV-{SUITE}-{NUM} e.g. AIEP-TV-DET-001"
+        },
+        "suite": {
+            "type": "string",
+            "enum": [
+                "deterministic-replay",
+                "tamper-detection",
+                "negative-proof",
+                "admissibility"
+            ],
+            "description": "Which conformance suite this vector belongs to"
+        },
+        "kernel_version": {
+            "type": "string",
+            "description": "KERNEL_VERSION the locked kernel was at when this vector was generated"
+        },
+        "schema_version_id": {
+            "type": "string",
+            "description": "AIEP schema version the vector exercises"
+        },
+        "profile": {
+            "type": "string",
+            "enum": [
+                "core",
+                "extended"
+            ],
+            "description": "core = required for conformance; extended = optional advanced behaviour"
+        },
+        "lockfile_version": {
+            "type": "string",
+            "description": "LOCKFILE_VERSION in force when this vector was generated"
+        },
+        "canon_spec_version": {
+            "type": "string",
+            "description": "CANON_SPEC version governing the canonical rules exercised by this vector"
+        },
+        "canon_rules_exercised": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "Which canon rules (R1-R8, CC-001, CC-004, CC-005) this vector exercises"
+        },
+        "description": {
+            "type": "string",
+            "description": "Human-readable description of what this vector tests"
+        },
+        "deterministic": {
+            "type": "boolean",
+            "description": "Whether the expected output is deterministic across all compliant implementations"
+        },
+        "cross_platform": {
+            "type": "boolean",
+            "description": "Whether the expected output is bit-for-bit identical across platforms"
+        },
+        "notes": {
+            "type": "string",
+            "description": "Implementation notes, derivation details, or warnings"
+        }
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {
+                    "suite": {
+                        "const": "deterministic-replay"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "input",
+                    "expected"
+                ],
+                "properties": {
+                    "input": {
+                        "type": "object",
+                        "required": [
+                            "evidence_ledger",
+                            "reasoning_ledger",
+                            "schema_version_id"
+                        ],
+                        "properties": {
+                            "evidence_ledger": {
+                                "type": "array"
+                            },
+                            "reasoning_ledger": {
+                                "type": "array"
+                            },
+                            "schema_version_id": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "expected": {
+                        "type": "object",
+                        "required": [
+                            "pack_hash"
+                        ],
+                        "properties": {
+                            "pack_hash": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{64}$"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "suite": {
+                        "const": "tamper-detection"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "committed_record",
+                    "tampered_record",
+                    "expected"
+                ],
+                "properties": {
+                    "committed_record": {
+                        "type": "object",
+                        "required": [
+                            "stored_pack_hash"
+                        ]
+                    },
+                    "tampered_record": {
+                        "type": "object"
+                    },
+                    "expected": {
+                        "type": "object",
+                        "required": [
+                            "tampered_pack_hash",
+                            "mismatch_detected"
+                        ],
+                        "properties": {
+                            "tampered_pack_hash": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{64}$"
+                            },
+                            "mismatch_detected": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "if": {
+                "properties": {
+                    "suite": {
+                        "const": "admissibility"
+                    }
+                }
+            },
+            "then": {
+                "required": [
+                    "input",
+                    "expected",
+                    "constitutional_constraint"
+                ],
+                "properties": {
+                    "input": {
+                        "type": "object",
+                        "required": [
+                            "plausibility_status",
+                            "gate_status"
+                        ]
+                    },
+                    "expected": {
+                        "type": "object",
+                        "required": [
+                            "admissible",
+                            "reason"
+                        ],
+                        "properties": {
+                            "admissible": {
+                                "type": "boolean"
+                            },
+                            "reason": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "constitutional_constraint": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    ]
+}

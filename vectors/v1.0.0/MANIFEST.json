@@ -1,0 +1,41 @@
+{
+  "manifest_version": "1.0.0",
+  "kernel_version": "1.0.0",
+  "lockfile_version": "1.0.0",
+  "canon_spec_version": "1.0.0",
+  "schema": "../schema/vector.schema.json",
+  "total_vectors": 10,
+  "suites": {
+    "deterministic-replay": {
+      "count": 3,
+      "vectors": [
+        "AIEP-TV-DET-001",
+        "AIEP-TV-DET-002",
+        "AIEP-TV-DET-003"
+      ]
+    },
+    "tamper-detection": {
+      "count": 2,
+      "vectors": [
+        "AIEP-TV-TAMP-001",
+        "AIEP-TV-TAMP-002"
+      ]
+    },
+    "negative-proof": {
+      "count": 2,
+      "vectors": [
+        "AIEP-TV-NEG-001",
+        "AIEP-TV-NEG-002"
+      ]
+    },
+    "admissibility": {
+      "count": 3,
+      "vectors": [
+        "AIEP-TV-ADM-001",
+        "AIEP-TV-ADM-002",
+        "AIEP-TV-ADM-003"
+      ]
+    }
+  },
+  "notes": "All core profile vectors must pass for an implementation to claim AIEP conformance. Run: aiep-verify --self-test && aiep-verify --vectors vectors/v1.0.0/"
+}
