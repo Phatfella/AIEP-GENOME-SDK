@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aiep-genome-sdk"
-version = "1.2.0"
+version = "1.0.0"
 license = "Apache-2.0"
 description = "AIEP GENOME SDK — zero-friction Python toolkit for building and adopting AIEP-compliant software"
 readme = "README.md"

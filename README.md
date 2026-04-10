@@ -1,9 +1,9 @@
-# AIEP GENOME SDK v1.1 — Kernel Architecture
+# AIEP GENOME SDK v1.0.0 — Kernel Architecture
 
 [![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)
-[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.0.0%20PASS-green)](CONFORMANCE.md)
+[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.1.0%20PASS-green)](CONFORMANCE.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v1.2.0-blue)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases)
+[![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases/tag/v1.0.0)
 
 **Architected Instruction and Evidence Protocol**  
 **Classification:** Protocol Reference Implementation + Production SaaS Foundation  
@@ -68,6 +68,28 @@ Any change to any file in `kernel/` requires:
 This is not a feature release. It is a constitutional amendment.
 
 **Check current kernel freeze:** `cat kernel/LOCKFILE.json`
+
+---
+
+## Install and verify
+
+```bash
+pip install aiep-genome-sdk
+
+# Verify the canon kernel self-tests pass on this machine
+aiep-verify --self-test
+
+# Verify against the canonical conformance vector suite
+git clone https://github.com/Phatfella/AIEP-VECTORS
+aiep-verify --vectors ./AIEP-VECTORS/v1.1.0/
+```
+
+Expected: `AIEP-COMPLIANT v1.1.0` — 9 core vectors + 6 extended, 15/15 PASS.
+
+```bash
+# Run the worked example — computes all 8 reference hashes from scratch
+python examples/complete_record/build.py
+```
 
 ---
 

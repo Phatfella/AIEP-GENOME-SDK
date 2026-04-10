@@ -621,6 +621,33 @@ def _run_swarm(v: dict) -> tuple:
         return True, f"exclusion committed: {h[:16]}..."
 
 
+def _run_malformed(v: dict) -> tuple:
+    """
+    malformed-input suite (FIX-027).
+    Each vector specifies a malformed input that MUST raise CanonError.
+    A verifier that does NOT raise CanonError on these inputs is non-conformant —
+    it accepts inputs the spec forbids. Fail-closed is not optional.
+    """
+    inp      = v["input"]
+    exp      = v["expected"]
+    obj      = inp["malformed_object"]
+    expected_error_contains = exp.get("error_contains", "")
+
+    try:
+        canonical_json(obj)
+        # If we reach here, the malformed input was NOT rejected — fail.
+        return False, (f"CANON-OPEN: malformed input {inp.get('case')} was accepted. "
+                       f"Expected CanonError containing '{expected_error_contains}'")
+    except CanonError as e:
+        msg = str(e)
+        if expected_error_contains and expected_error_contains not in msg:
+            return False, (f"WRONG-ERROR: got CanonError({msg!r}) but "
+                           f"expected it to contain '{expected_error_contains}'")
+        return True, f"correctly rejected: CanonError({msg[:60]})"
+    except Exception as e:
+        return False, f"WRONG-EXCEPTION: expected CanonError, got {type(e).__name__}: {e}"
+
+
 # Dispatch table -- no fallback, no implicit pass
 _SUITE_RUNNERS = {
     "deterministic-replay":  _run_det,
@@ -631,6 +658,7 @@ _SUITE_RUNNERS = {
     "dissent-hash":          _run_dis_hash,
     "recall":                _run_recall,
     "swarm":                 _run_swarm,
+    "malformed-input":       _run_malformed,
 }
 
 # ===============================================================

@@ -1,0 +1,29 @@
+{
+    "genome_constitution_hash": "542a0e5587190ed48f0eabc3f70e4d0fabad672c48be61287d3b4c42a0b3ca74",
+    "kernel_version": "1.0.0",
+    "canon_spec_version": "1.0.0",
+    "rules": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8"
+    ],
+    "constitutional_constraints": [
+        "CC-001",
+        "CC-002",
+        "CC-003",
+        "CC-004",
+        "CC-005"
+    ],
+    "claims_hash": "031da6e4b4ff723b0866fc7d57d869cffc60d6ecfde62fa5c1aa08fd7fcad174",
+    "boundaries_hash": "616fa2d45f4dbae9bd54bd01d9ed42aeacb61b627eae42fdeef38368fd62dce8",
+    "canon_spec_hash": "95732ce67bcb97b0e03e0dd72431a7051f0a60ff6f748e36f81bca2f2985122d",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "source_repo": "https://github.com/Phatfella/AIEP-GENOME-SDK",
+    "published_at": "2026-04-10T00:00:00Z",
+    "note": "The kernel's own constitutional rules are committed here. Any change to CLAIMS.md, BOUNDARIES.md, or CANON_SPEC.md changes this hash. Changes are detectable."
+}

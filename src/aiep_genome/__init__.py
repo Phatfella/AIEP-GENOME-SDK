@@ -1,7 +1,7 @@
 """
 aiep_genome — AIEP GENOME SDK Python package
 =============================================
-Version: 1.2.0
+Version: 1.0.0
 Kernel:  Frozen at 1.0.0  (LOCKFILE v1.0.0)
 
 Two primary surfaces:
@@ -20,12 +20,19 @@ Two primary surfaces:
 """
 from __future__ import annotations
 
-__version__ = "1.2.0"
+__version__ = "1.0.0"
 KERNEL_VERSION = "1.0.0"
 LOCKFILE_VERSION = "1.0.0"
+
+# FIX-013: The kernel's own constitutional rules are committed here.
+# sha256_hex(canonical_json({rules, constraints, claims_hash, boundaries_hash, canon_spec_hash}))
+# Any change to CLAIMS.md, BOUNDARIES.md, or CANON_SPEC.md produces a different hash.
+# Published at /.well-known/aiep/genome_constitution.json
+GENOME_CONSTITUTION_HASH = "542a0e5587190ed48f0eabc3f70e4d0fabad672c48be61287d3b4c42a0b3ca74"
 
 __all__ = [
     "__version__",
     "KERNEL_VERSION",
     "LOCKFILE_VERSION",
+    "GENOME_CONSTITUTION_HASH",
 ]
