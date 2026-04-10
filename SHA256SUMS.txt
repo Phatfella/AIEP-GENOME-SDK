@@ -1,11 +1,11 @@
 # AIEP GENOME SDK -- SHA256 checksums
 # Generated from CANON_SPEC v1.0.0
 
-d1f35c930499fe2cb70b840611b5644ea891ef5902d0e13150870a845d674410  kernel/canon/canon.py
-2043313f0082ba76401404598a39b00aa84a844780c3337d321bdccc24129c45  src/aiep_genome/kernel/canon.py
-7dc0a820e8a6a2a16c991496692da890379b5bde6f8d8784d801f0535d0020d8  src/aiep_genome/standalone_verify.py
+a4c2018adf83a701fea5f1f265fd3460670e88ea47b6c5714186a90e13c2cd5f  kernel/canon/canon.py
+2980da9fcfe950cae9318c17f5a20a3cb54aab392f3d9a224e8a0025cd08598f  src/aiep_genome/kernel/canon.py
+6d0579688a02a286a58a9b7244309c98dc1ba2422cec3562848b79c3e88b02cd  src/aiep_genome/standalone_verify.py
 c45ed9e16ad1f1318f4a6f751c0ec0184f3050f386c729bc31a8f6430d0b5e06  src/aiep_genome/verify_record.py
-2977031e2d6c81ba6fef2aad6ec112ff01e69c0ac62dda0b202836ab815ff6a3  CANON_SPEC.md
+db2ee73cfd2e0cb0cefe9dffa296f8fdc5898077e3f66d94825889a218fa156a  CANON_SPEC.md
 f1acc87111a3c0b650b82628e3def57b654ff226300716b77b99812c6c8e7911  CLAIMS.md
 8edebb522df6bf74cdfeba960e2c7bd4f356256b645854cc61bfeb2e315f1e02  BOUNDARIES.md
 29c43d46bde36cb99c212a66560cf87ec95acf58ed8609991b8eb30b04032eae  CONFORMANCE.md
@@ -19,14 +19,14 @@ acaaf7f69f173bd5188b511bb0566943f1ddd19165e083515e2fd24c4b749ae7  vectors/v1.0.0
 b0df31c64472e0cfc87f133b0af44b1b928860a013fd2b2fa3e0a80e0206be30  vectors/v1.0.0/04-admissibility/case-001.json
 19846c6baa834232816f523b9a47b2488a70acd72e57e4267fa8dd848a52196b  vectors/v1.0.0/04-admissibility/case-002.json
 50419338ebb2490865359032e59240329fdfe055d417d7766f6cd71d60d69bf9  vectors/v1.0.0/04-admissibility/case-003.json
-c2ef858b1bb4fe2efcbaeee6a146237f477c083a6bfaa3c6a64e9c93cf14b9df  vectors/v1.0.0/05-number-normalisation/case-001.json
-901a42bd297210a304ef970a2b1358d3880a3f85aa59c5a1b5646fbac8db662d  vectors/v1.0.0/05-number-normalisation/case-002.json
-58da0125687b453191d13263dd644954215a85787a84506ea3d8cdb739050e3d  vectors/v1.0.0/05-number-normalisation/case-003.json
-93785b4774a302d7555aee859fa7199c6df81e76261b765d252b53e943394ca7  vectors/v1.0.0/05-number-normalisation/case-004.json
-e27cab22b03c56c336b440d20f711819fb2aa77d2e4a4f3ca4287d52d0fa324d  vectors/v1.0.0/05-number-normalisation/case-005.json
-c4d91bc5a4eff62d8bfd482c32254385b9d66e331fbb9ccabb595a38d10c46d2  vectors/v1.0.0/05-number-normalisation/case-006.json
-b00f4527b07f4183bc599f7dbab5da725f10dae59b5f314305ab3da2f5bfed74  vectors/v1.0.0/05-number-normalisation/case-007.json
+c7f6766b4a9e22a6f737d58d97dc6061b5619c7b7179632f0fbee86c0abcb51e  vectors/v1.0.0/05-number-normalisation/case-001.json
+ec17fa878af4478ac1a27e4b393ff65d95966c29c1821aa48e85e6fc5bcc3ca2  vectors/v1.0.0/05-number-normalisation/case-002.json
+6f0afff9eba465563f0370763dfbdcc692fded32595cc9210618ec7d4189aeff  vectors/v1.0.0/05-number-normalisation/case-003.json
+6dc174817c69bd44c4bc015d1ea199c1e95f2a5d84ce5407e7d194c4cf7db061  vectors/v1.0.0/05-number-normalisation/case-004.json
+381936a032278635a405b34fd3bc3850a63d0826de0e21a7b0d5f32569431b3e  vectors/v1.0.0/05-number-normalisation/case-005.json
+68432fc671ef2eee163218e31e4bd95ff08a5c03ec412686fe3b52fbe0aded7e  vectors/v1.0.0/05-number-normalisation/case-006.json
+2b6e0c7cff9ff9ac0a9b1e056ea850cc5a30e91ab32181c5daefa6ed9b5fbeb4  vectors/v1.0.0/05-number-normalisation/case-007.json
 a1154da3e17252fc8461e98e37567956927f84c8b46eeef071e792ecfca0a2ec  vectors/v1.0.0/MANIFEST.json
 0585c2154f45d6853a54b8578e6b9e5869fd619f5d308daaadedccbbb1b4e423  vectors/schema/vector.schema.json
-7c11deaae2030cb3f5cfdd6734446d6baf08ae43216da2ff4f5e46bc468b70bb  scripts/generate_vectors.py
+08372d5b02db076c48067f22d3780adcb16e9e59a092d77c81ea602c48c0d87c  scripts/generate_vectors.py
 099fca9bc8288600bdbe7eaadd236118a404f1e6dd0517ac619c03ede51c33ca  pyproject.toml

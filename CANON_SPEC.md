@@ -7,15 +7,11 @@
 **Kernel version:** 1.0.1
 **LOCKFILE version:** 1.0.3
 
-> **Architecture note (2026-04-10, pending revert):** Three implementations currently exist
-> with different feature sets. This authority BlobSha covers Layer 0 only
-> (`kernel/canon/canon.py`: R1–R7 + commitment helpers). Phase 12e primitives
-> (`dissent_hash`, `recall_scope_hash`, `swarm_inclusion_proof`, etc.) are currently
-> only in `src/aiep_genome/kernel/canon.py`. Reduction-to-practice for the Phase 12e
-> primitives is in `examples/complete_record/build.py` (commit `e25e325`). Before public
-> release, all primitives will converge to a single authority file. The current split is
-> documented here for patent counsel reference. After the planned revert of `6f2875a`, all
-> three implementations will agree and this note will be removed.
+> **Architecture (Path A — single source):** One canonical implementation.
+> `kernel/canon/canon.py` is the Layer 0 locked reference (covered by this BlobSha).
+> `src/aiep_genome/kernel/canon.py` is a thin shim that re-exports from it — no logic there.
+> `src/aiep_genome/standalone_verify.py` is an independent verifier with no shared code.
+> The split is resolved. The BlobSha below covers `kernel/canon/canon.py` only.
 
 This document is the single language-agnostic authority for all AIEP
 canonicalisation and hashing behaviour. The Python kernel implements

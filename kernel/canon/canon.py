@@ -5,9 +5,9 @@ AUTHORITY LAYER (Layer 0 Reference). LOCKED.
 Any change to this file increments KERNEL_VERSION and invalidates LOCKFILE.
 This module has zero external dependencies beyond the Python standard library.
 
-Architecture (three implementations, one spec):
-  kernel/canon/canon.py              — THIS FILE — Layer 0 locked reference
-  src/aiep_genome/kernel/canon.py    — Package-distributed implementation (extends this)
+Architecture (Path A — single source):
+  kernel/canon/canon.py              — THIS FILE — Layer 0 locked reference (single source)
+  src/aiep_genome/kernel/canon.py    — Package shim: re-exports from this file (no logic)
   src/aiep_genome/standalone_verify.py — Independent stdlib verifier (no shared code with either)
 
 CANON_SPEC.md governs all three. In case of discrepancy, CANON_SPEC.md is authoritative.
