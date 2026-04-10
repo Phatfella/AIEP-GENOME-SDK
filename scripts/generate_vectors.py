@@ -47,12 +47,12 @@ except ImportError as exc:
     print("Run from genome-sdk root with: pip install -e .[dev]", file=sys.stderr)
     sys.exit(1)
 
-KERNEL_VERSION      = "1.0.1"
-LOCKFILE_VERSION    = "1.0.1"
-CANON_SPEC_VERSION  = "1.0.1"
+KERNEL_VERSION      = "1.0.2"
+LOCKFILE_VERSION    = "1.0.2"
+CANON_SPEC_VERSION  = "1.0.2"
 VECTOR_PACK_VERSION = "1.1.0"
 SCHEMA_VERSION_ID   = "aiep.canonical.v2.0.0"
-CANON_BLOBSHA       = "ced9bbaab5c9e34c549a4718e8edf33bf0f7ff4e"
+CANON_BLOBSHA       = "7549b425ca8fd90657601bdb93587ebc91243dd0"
 
 
 def _assert_r5_consistency() -> None:

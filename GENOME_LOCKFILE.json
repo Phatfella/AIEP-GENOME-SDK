@@ -1,6 +1,6 @@
 {
   "_doc": "AIEP GENOME SDK — Kernel Freeze Lock v1.0. Governed by AIEP Flexibility Contract §2 (Layer 0). Any modification to a locked field requires new LOCKFILE_VERSION and triggers version fracture per §9.",
-  "LOCKFILE_VERSION": "1.0.1",
+  "LOCKFILE_VERSION": "1.0.2",
   "FLEXIBILITY_CONTRACT_VERSION": "1.0.0",
   "LOCKED_AT": "2026-04-10T00:00:00Z",
   "PROTOCOL": "AIEP",
@@ -25,10 +25,10 @@
       "key_ordering": "lexicographic-utf8-bytes",
       "locked": true
     },
-    "kernel_bundle_hash": "ec202da94575eee8e83614983ad2e08a5e01e5095ef0af0fa48367ea4bb5ae1d",
+    "kernel_bundle_hash": "517167811dd87405882aa55ab895229e69c1b29b0b90df101b9f5ab24077f791",
     "kernel_files": {
       "kernel/arbitration/arbitration.py": "92e27ae4cc08a166ba4cfb0959a9405c2ae929a4a60f0c45b8c990adcdbce3e2",
-      "kernel/canon/canon.py": "53ffd56605be911a8ea010e9da4f0db7e21783404c1443e9b50253b55616983e",
+      "kernel/canon/canon.py": "40040ab07a05804346cf857adbbbbee9d7e40e921803d444de7de1627a0d2084",
       "kernel/hashing/algorithms.py": "f433336fadec7261c238636d817f72fe068bb173754bda49710e136f55d3ca8f",
       "kernel/negative_proof/negative_proof.py": "c14943c86e705fbce28e7c26c488c7b9d2c327462a2628d1c7b0eaa3732faa70",
       "kernel/validation/invariants.py": "e3e530b0e459263cfa440209c21f14a9b78878de4545c02ef2f444d601161751"

@@ -287,7 +287,7 @@ class TestSelfTest(unittest.TestCase):
         self.assertTrue(run_self_test())
 
     def test_kernel_version_is_frozen(self):
-        self.assertEqual(KERNEL_VERSION, "1.0.1")
+        self.assertEqual(KERNEL_VERSION, "1.0.2")
 
     def test_active_algorithm_is_sha256(self):
         self.assertEqual(ACTIVE_ALGORITHM, "sha-256")

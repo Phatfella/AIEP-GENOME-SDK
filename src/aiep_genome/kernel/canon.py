@@ -14,7 +14,7 @@ ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.1"
+KERNEL_VERSION  = "1.0.2"
 
 _GENESIS_SENTINEL = "GENESIS"
 
@@ -217,13 +217,12 @@ def convergence_hash(archived_branch_record_hash: str, triggering_artefact_hash:
                       cumulative_evidence_weight: float, schema_version_id: str) -> str:
     """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)
 
-    NOTE: weight is serialised via decimal.Decimal.normalize() formatted as fixed-point to avoid
-    cross-language scientific-notation divergence (str(1e-7) == '1e-07' in Python but '1e-7' in JS).
-    Both produce '0.0000001' through this path.
+    CumulativeEvidenceWeight is serialised via canonical_json to guarantee determinism:
+    str(1.0) == '1.0' but canonical_json(1.0) == '1'. Using str() would produce different
+    hashes for integral-valued weights depending on how the caller constructed the float.
     """
-    weight_str = format(decimal.Decimal(str(cumulative_evidence_weight)).normalize(), "f")
     return concat_hash(archived_branch_record_hash, triggering_artefact_hash,
-                       weight_str, schema_version_id)
+                       canonical_json(cumulative_evidence_weight), schema_version_id)
 
 
 def certificate_hash(output_hash: str, reasoning_chain_hash: str, evidence_substrate_hash: str,

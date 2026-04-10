@@ -20,7 +20,7 @@ ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.1"
+KERNEL_VERSION  = "1.0.2"
 
 _GENESIS_SENTINEL = "GENESIS"
 
@@ -160,9 +160,14 @@ def founding_tension_hash(canonical_tension: str, goal_vector_id: str, schema_ve
 
 def convergence_hash(archived_branch_record_hash: str, triggering_artefact_hash: str,
                       cumulative_evidence_weight: float, schema_version_id: str) -> str:
-    """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)"""
+    """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)
+
+    CumulativeEvidenceWeight is serialised via canonical_json to guarantee determinism:
+    str(1.0) == '1.0' but canonical_json(1.0) == '1'. Using str() would produce different
+    hashes for integral-valued weights depending on how the caller constructed the float.
+    """
     return concat_hash(archived_branch_record_hash, triggering_artefact_hash,
-                       str(cumulative_evidence_weight), schema_version_id)
+                       canonical_json(cumulative_evidence_weight), schema_version_id)
 
 
 def certificate_hash(output_hash: str, reasoning_chain_hash: str, evidence_substrate_hash: str,
@@ -186,7 +191,7 @@ SELF_TEST_VECTORS = [
     ("canonical_json",  ({"z": 1, "a": 2},),            '{"a":2,"z":1}'),
     ("canonical_json",  ({"n": "\u00c5ngstr\u00f6m"},), '{"n":"\u00c5ngstr\u00f6m"}'),
     ("sha256_hex",      ("",),                            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
-    ("sha256_hex",      ("AIEP",),                        "d3e20aae60c85e0416e36ad91f0b5c3e0dae57b7bfe6cf2b7cf7add7a0c57b13"),
+    ("sha256_hex",      ("AIEP",),                        "13f3f3d9594fca34661784a66ff206699284ac5c3ebb048b5654eb05f289ec7e"),
     ("concat_hash",     ("ab", "c"),                      None),   # boundary test only — not equal to concat_hash("a","bc")
     ("concat_hash",     ("a", "bc"),                      None),   # boundary test only
 ]

@@ -1,11 +1,11 @@
 # AIEP Canon Specification
 
-**Canon Spec Version:** 1.0.1
+**Canon Spec Version:** 1.0.2
 **Locked at:** 2026-02-27T00:00:00Z
 **Authority source:** `kernel/canon/canon.py`
-**Authority BlobSha:** `ced9bbaab5c9e34c549a4718e8edf33bf0f7ff4e`
-**Kernel version:** 1.0.1
-**LOCKFILE version:** 1.0.1
+**Authority BlobSha:** `7549b425ca8fd90657601bdb93587ebc91243dd0`
+**Kernel version:** 1.0.2
+**LOCKFILE version:** 1.0.2
 
 This document is the single language-agnostic authority for all AIEP
 canonicalisation and hashing behaviour. The Python kernel implements
@@ -160,7 +160,7 @@ where `H_concat` is the length-prefixed concatenation hash defined in R7.
 ## What This Specification Covers
 
 Rules R1–R8 govern canonical serialisation and hashing only.
-They are Layer 0 — non-negotiable and locked at LOCKFILE_VERSION 1.0.1.
+They are Layer 0 — non-negotiable and locked at LOCKFILE_VERSION 1.0.2
 
 ## What This Specification Does Not Cover
 
