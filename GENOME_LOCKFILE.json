@@ -25,10 +25,10 @@
       "key_ordering": "lexicographic-utf8-bytes",
       "locked": true
     },
-    "kernel_bundle_hash": "41c484912cdb8b95f8ca8437d968b24f1845c57c4afc135724c355129ed83a99",
+    "kernel_bundle_hash": "6b0dbd8ed431357403286a2a12badd336cbd88c161c1eaf3fa5ca48d44882aec",
     "kernel_files": {
       "kernel/arbitration/arbitration.py": "92e27ae4cc08a166ba4cfb0959a9405c2ae929a4a60f0c45b8c990adcdbce3e2",
-      "kernel/canon/canon.py": "d1f35c930499fe2cb70b840611b5644ea891ef5902d0e13150870a845d674410",
+      "kernel/canon/canon.py": "a4c2018adf83a701fea5f1f265fd3460670e88ea47b6c5714186a90e13c2cd5f",
       "kernel/hashing/algorithms.py": "f433336fadec7261c238636d817f72fe068bb173754bda49710e136f55d3ca8f",
       "kernel/negative_proof/negative_proof.py": "c14943c86e705fbce28e7c26c488c7b9d2c327462a2628d1c7b0eaa3732faa70",
       "kernel/validation/invariants.py": "e3e530b0e459263cfa440209c21f14a9b78878de4545c02ef2f444d601161751"
