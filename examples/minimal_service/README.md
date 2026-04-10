@@ -61,7 +61,7 @@ can verify it with: aiep-verify demo-record.json
 1. Replace `collect_evidence()` with your evidence source (API call, database query, sensor reading)
 2. Replace `make_decision()` with your reasoning logic — keep the structure, change the content
 3. Add your `ReasoningLedgerEntry` items for each reasoning step
-4. Run `aiep-verify --vectors AIEP-VECTORS/v1.1.0/` to confirm your kernel is conformant
+4. Run `aiep-verify --vectors AIEP-VECTORS/vectors/v1.0.0/` to confirm your kernel is conformant
 5. Add `CONFORMANCE.md` to your repo
 
 ## Constitutional constraints
