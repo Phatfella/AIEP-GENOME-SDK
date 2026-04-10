@@ -54,7 +54,7 @@ Implements §[0033] of P94 — Anticipatory Branch Surfacing.
 
 ## Governance
 All implementations are governed by the AIEP GENOME kernel.  
-LOCKFILE_VERSION: 1.0.0 | FC: v1.0.0 | Schema: v2.0.0.
+LOCKFILE_VERSION: 1.0.3 | FC: v1.0.0 | Schema: v2.0.0.
 
 SPDX-License-Identifier: Apache-2.0  
 © 2025–2026 Neil Grassby. All rights reserved.
