@@ -5,6 +5,7 @@ LOCKED at v1.0.0. Source of truth: kernel/canon/canon.py (compare LOCKFILE).
 This file is a package-distributed copy. Do NOT modify — any change is a kernel violation.
 """
 
+import decimal
 import hashlib
 import json
 import unicodedata
@@ -171,9 +172,15 @@ def founding_tension_hash(canonical_tension: str, goal_vector_id: str, schema_ve
 
 def convergence_hash(archived_branch_record_hash: str, triggering_artefact_hash: str,
                       cumulative_evidence_weight: float, schema_version_id: str) -> str:
-    """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)"""
+    """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)
+
+    NOTE: weight is serialised via decimal.Decimal.normalize() formatted as fixed-point to avoid
+    cross-language scientific-notation divergence (str(1e-7) == '1e-07' in Python but '1e-7' in JS).
+    Both produce '0.0000001' through this path.
+    """
+    weight_str = format(decimal.Decimal(str(cumulative_evidence_weight)).normalize(), "f")
     return concat_hash(archived_branch_record_hash, triggering_artefact_hash,
-                       str(cumulative_evidence_weight), schema_version_id)
+                       weight_str, schema_version_id)
 
 
 def certificate_hash(output_hash: str, reasoning_chain_hash: str, evidence_substrate_hash: str,

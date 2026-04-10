@@ -50,6 +50,6 @@ def evaluate_admissibility(
         return False, "CC-001: Plausibility filter rejected — conclusion is implausible"
     if plausibility_status == "indeterminate":
         return False, "CC-001: Plausibility indeterminate — cannot advance under uncertainty"
-    if dissent_final_position in ("reject", "escalate"):
+    if (dissent_final_position or "").lower() in ("reject", "escalate"):
         return False, "CC-004: Dissent unresolved — conclusion contested or escalated"
     return True, "ADMISSIBLE"
