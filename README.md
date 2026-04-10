@@ -1,7 +1,7 @@
 # AIEP GENOME SDK v1.0.0 — Kernel Architecture
 
 [![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)
-[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.1.0%20PASS-green)](CONFORMANCE.md)
+[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.0.0%20PASS-green)](CONFORMANCE.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases/tag/v1.0.0)
 
@@ -81,10 +81,10 @@ aiep-verify --self-test
 
 # Verify against the canonical conformance vector suite
 git clone https://github.com/Phatfella/AIEP-VECTORS
-aiep-verify --vectors ./AIEP-VECTORS/v1.1.0/
+aiep-verify --vectors ./AIEP-VECTORS/vectors/v1.0.0/
 ```
 
-Expected: `AIEP-COMPLIANT v1.1.0` — 9 core vectors + 6 extended, 15/15 PASS.
+Expected: `AIEP-COMPLIANT v1.0.0` — 24 vectors across 6 suites, 24/24 PASS.
 
 ```bash
 # Run the worked example — computes all 8 reference hashes from scratch
