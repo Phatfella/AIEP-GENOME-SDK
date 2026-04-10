@@ -1,8 +1,16 @@
 """
 AIEP GENOME SDK — Kernel: Canonical Serialisation Engine (package copy)
 =========================================================================
-LOCKED at v1.0.1. Source of truth: kernel/canon/canon.py (compare LOCKFILE).
-This file is a package-distributed copy. Do NOT modify — any change is a kernel violation.
+PACKAGE LAYER. This file is the pip-installable implementation.
+
+Architecture (three implementations, one spec):
+  kernel/canon/canon.py              — Layer 0 locked reference (source of truth)
+  src/aiep_genome/kernel/canon.py    — THIS FILE — package-distributed (extends Layer 0)
+  src/aiep_genome/standalone_verify.py — Independent stdlib verifier (no shared code)
+
+CANON_SPEC.md governs all three. Do NOT modify R1–R7 logic here independently of
+kernel/canon/canon.py. New primitives (Phase 12e: dissent_hash et al.) added here
+are pending specification in CANON_SPEC.md; they extend but do not modify Layer 0.
 """
 
 import decimal
@@ -14,7 +22,7 @@ ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.2"
+KERNEL_VERSION  = "1.0.3"
 
 _GENESIS_SENTINEL = "GENESIS"
 
@@ -72,6 +80,30 @@ def canonical_json(obj) -> str:
     """
     normed = _norm_object(obj)
     return json.dumps(normed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def _canon_number_str(n: float) -> str:
+    """
+    Return a canonical fixed-point string for a numeric value for use as a
+    concat_hash argument.
+
+    Unlike canonical_json(n), this returns a bare string with no JSON envelope.
+    Uses fixed-point notation — no scientific notation — making it safe for
+    cross-platform hash reproducibility at all float magnitudes.
+
+    canonical_json(0.00001) delegates to json.dumps(float) which yields '1e-05',
+    violating R5. This function yields '0.00001'.
+
+    Examples: 1.0 → '1', 1.5 → '1.5', 0.00001 → '0.00001', 100000.0 → '100000'
+    Non-finite values and minus-zero raise ValueError per R5.
+    """
+    d = decimal.Decimal(str(n))
+    if not d.is_finite():
+        raise ValueError(
+            f"AIEP-CANON-R5: non-finite number in concat_hash argument (got {n!r})")
+    if d.is_zero() and d.is_signed():
+        raise ValueError("AIEP-CANON-R5: minus-zero in concat_hash argument")
+    return format(d.normalize(), "f")
 
 
 def sha256_hex(s: str) -> str:
@@ -217,12 +249,13 @@ def convergence_hash(archived_branch_record_hash: str, triggering_artefact_hash:
                       cumulative_evidence_weight: float, schema_version_id: str) -> str:
     """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)
 
-    CumulativeEvidenceWeight is serialised via canonical_json to guarantee determinism:
-    str(1.0) == '1.0' but canonical_json(1.0) == '1'. Using str() would produce different
-    hashes for integral-valued weights depending on how the caller constructed the float.
+    CumulativeEvidenceWeight is serialised via _canon_number_str to guarantee determinism
+    at all float magnitudes. canonical_json() delegates to json.dumps(float) which produces
+    scientific notation for small values (e.g. 1e-05 for 0.00001), violating R5.
+    _canon_number_str uses decimal fixed-point: 0.00001 → '0.00001'.
     """
     return concat_hash(archived_branch_record_hash, triggering_artefact_hash,
-                       canonical_json(cumulative_evidence_weight), schema_version_id)
+                       _canon_number_str(cumulative_evidence_weight), schema_version_id)
 
 
 def certificate_hash(output_hash: str, reasoning_chain_hash: str, evidence_substrate_hash: str,
@@ -289,9 +322,14 @@ def recall_scope_hash(archived_dissent_hash: str, eligible_trigger_domains: list
     P83: The RecallScope is itself a cryptographic commitment.
     Two nodes must agree on this hash before either can initiate recall.
     plausibility_threshold_str: canonical string form of the threshold
-      (use _canon_number() or str(Decimal) — do NOT pass a raw float).
+      (use _canon_number_str(value) to convert from float — do NOT pass a raw float).
     The conditions for recall are committed at the moment of archival, not at recall time.
     """
+    if not isinstance(plausibility_threshold_str, str):
+        raise TypeError(
+            "AIEP-CANON-R5: plausibility_threshold_str must be a canonical string. "
+            "Use _canon_number_str(value) to convert from float."
+        )
     return concat_hash(
         archived_dissent_hash,
         canonical_json(sorted(eligible_trigger_domains)),

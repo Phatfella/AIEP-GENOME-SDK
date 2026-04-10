@@ -1,11 +1,20 @@
 """
 AIEP GENOME SDK — Kernel: Canonical Serialisation Engine
 =========================================================
-LOCKED. Any change to this file increments KERNEL_VERSION and invalidates LOCKFILE.
+AUTHORITY LAYER (Layer 0 Reference). LOCKED.
+Any change to this file increments KERNEL_VERSION and invalidates LOCKFILE.
 This module has zero external dependencies beyond the Python standard library.
 
+Architecture (three implementations, one spec):
+  kernel/canon/canon.py              — THIS FILE — Layer 0 locked reference
+  src/aiep_genome/kernel/canon.py    — Package-distributed implementation (extends this)
+  src/aiep_genome/standalone_verify.py — Independent stdlib verifier (no shared code with either)
+
+CANON_SPEC.md governs all three. In case of discrepancy, CANON_SPEC.md is authoritative.
+Do NOT modify R1–R7 logic here independently of CANON_SPEC.md.
+
 Implements canonicalisation rules R1–R8 as defined in:
-  docs/CANONICALISATION.md
+  CANON_SPEC.md (authority document)
   schemas/core/aiep.canonical.schema.v2.0.0.schema.json
 """
 
@@ -20,7 +29,7 @@ ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.2"
+KERNEL_VERSION  = "1.0.3"
 
 _GENESIS_SENTINEL = "GENESIS"
 
@@ -85,6 +94,32 @@ def canonical_json(obj) -> str:
     """
     normed = _norm_object(obj)
     return json.dumps(normed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+# ── Fixed-point float serialisation (R5-safe concat_hash argument) ─────────────────
+
+def _canon_number_str(n: float) -> str:
+    """
+    Return a canonical fixed-point string for a numeric value for use as a
+    concat_hash argument.
+
+    Unlike canonical_json(n), this returns a bare string with no JSON envelope.
+    Uses fixed-point notation — no scientific notation — making it safe for
+    cross-platform hash reproducibility at all float magnitudes.
+
+    canonical_json(0.00001) delegates to json.dumps(float) which yields '1e-05',
+    violating R5. This function yields '0.00001'.
+
+    Examples: 1.0 → '1', 1.5 → '1.5', 0.00001 → '0.00001', 100000.0 → '100000'
+    Non-finite values and minus-zero raise ValueError per R5.
+    """
+    d = decimal.Decimal(str(n))
+    if not d.is_finite():
+        raise ValueError(
+            f"AIEP-CANON-R5: non-finite number in concat_hash argument (got {n!r})")
+    if d.is_zero() and d.is_signed():
+        raise ValueError("AIEP-CANON-R5: minus-zero in concat_hash argument")
+    return format(d.normalize(), "f")
 
 
 # ── R4: SHA-256 hex digest ────────────────────────────────────────────────────
@@ -162,12 +197,13 @@ def convergence_hash(archived_branch_record_hash: str, triggering_artefact_hash:
                       cumulative_evidence_weight: float, schema_version_id: str) -> str:
     """P94: H(ArchivedBranchRecordHash || TriggeringArtefactHash || CumulativeEvidenceWeight || SchemaVersionId)
 
-    CumulativeEvidenceWeight is serialised via canonical_json to guarantee determinism:
-    str(1.0) == '1.0' but canonical_json(1.0) == '1'. Using str() would produce different
-    hashes for integral-valued weights depending on how the caller constructed the float.
+    CumulativeEvidenceWeight is serialised via _canon_number_str to guarantee determinism
+    at all float magnitudes. canonical_json() delegates to json.dumps(float) which produces
+    scientific notation for small values (e.g. 1e-05 for 0.00001), violating R5.
+    _canon_number_str uses decimal fixed-point: 0.00001 → '0.00001'.
     """
     return concat_hash(archived_branch_record_hash, triggering_artefact_hash,
-                       canonical_json(cumulative_evidence_weight), schema_version_id)
+                       _canon_number_str(cumulative_evidence_weight), schema_version_id)
 
 
 def certificate_hash(output_hash: str, reasoning_chain_hash: str, evidence_substrate_hash: str,

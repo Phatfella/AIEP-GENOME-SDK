@@ -7,6 +7,7 @@ ROOT = pathlib.Path(__file__).parent.parent
 
 FILES = [
     "kernel/canon/canon.py",
+    "src/aiep_genome/kernel/canon.py",
     "src/aiep_genome/standalone_verify.py",
     "src/aiep_genome/verify_record.py",
     "CANON_SPEC.md",
