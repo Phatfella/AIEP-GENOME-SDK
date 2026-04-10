@@ -1,8 +1,8 @@
 {
   "_doc": "AIEP GENOME SDK — Kernel Freeze Lock v1.0. Governed by AIEP Flexibility Contract §2 (Layer 0). Any modification to a locked field requires new LOCKFILE_VERSION and triggers version fracture per §9.",
-  "LOCKFILE_VERSION": "1.0.0",
+  "LOCKFILE_VERSION": "1.0.1",
   "FLEXIBILITY_CONTRACT_VERSION": "1.0.0",
-  "LOCKED_AT": "2026-02-27T00:00:00Z",
+  "LOCKED_AT": "2026-04-10T00:00:00Z",
   "PROTOCOL": "AIEP",
   "SDK_VERSION": "1.1.0",
   "layer_0_locks": {
@@ -16,19 +16,19 @@
     },
     "deterministic_engine": {
       "_doc": "FC §8: Output = f(A, C, P). For identical A,C,P output must be identical across machines, deployments, jurisdictions, time.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "hash_algorithm": "sha-256",
       "hash_encoding": "hex-lower",
       "concat_method": "length-prefixed-8be",
       "unicode_normalisation": "NFC",
-      "number_rules": "no-scientific;trim-trailing-zeros;minus-zero-forbidden",
+      "number_rules": "no-scientific;trim-trailing-zeros;minus-zero-forbidden;non-finite-forbidden;integral-float-as-int",
       "key_ordering": "lexicographic-utf8-bytes",
       "locked": true
     },
-    "kernel_bundle_hash": "c3429a2d4a8fd14de008f387fe80c0d7201b304658dba5ed05db6f018707d95b",
+    "kernel_bundle_hash": "ec202da94575eee8e83614983ad2e08a5e01e5095ef0af0fa48367ea4bb5ae1d",
     "kernel_files": {
       "kernel/arbitration/arbitration.py": "92e27ae4cc08a166ba4cfb0959a9405c2ae929a4a60f0c45b8c990adcdbce3e2",
-      "kernel/canon/canon.py": "b667eee64b001c6ca0447817f51c8c932361271d23376ed735ddfc9c8b68db6f",
+      "kernel/canon/canon.py": "53ffd56605be911a8ea010e9da4f0db7e21783404c1443e9b50253b55616983e",
       "kernel/hashing/algorithms.py": "f433336fadec7261c238636d817f72fe068bb173754bda49710e136f55d3ca8f",
       "kernel/negative_proof/negative_proof.py": "c14943c86e705fbce28e7c26c488c7b9d2c327462a2628d1c7b0eaa3732faa70",
       "kernel/validation/invariants.py": "e3e530b0e459263cfa440209c21f14a9b78878de4545c02ef2f444d601161751"

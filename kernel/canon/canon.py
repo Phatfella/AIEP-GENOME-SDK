@@ -9,61 +9,61 @@ Implements canonicalisation rules R1–R8 as defined in:
   schemas/core/aiep.canonical.schema.v2.0.0.schema.json
 """
 
+import decimal
 import hashlib
 import json
 import unicodedata
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+# ── Constants ─────────────────────────────────────────────────────
 
 ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.0"
+KERNEL_VERSION  = "1.0.1"
 
 _GENESIS_SENTINEL = "GENESIS"
 
 
-# ── R3: NFC normalisation ─────────────────────────────────────────────────────
+# ── R3 + R5: Object normalisation ───────────────────────────────────────────────
 
 def _nfc(s: str) -> str:
     """R3: Normalise all Unicode strings to NFC before serialisation."""
     return unicodedata.normalize("NFC", s)
 
 
-def _nfc_object(obj):
-    """Recursively NFC-normalise all string values in a JSON-compatible object."""
+def _norm_object(obj):
+    """
+    R3 + R5: Recursively prepare a JSON-compatible object for canonical serialisation.
+
+    R3: All strings NFC-normalised.
+    R5: Numbers normalised so json.dumps emits them as canonical numeric tokens:
+        - Non-finite (NaN, Inf) → ValueError
+        - Minus-zero → ValueError
+        - Integral floats (1.0) → Python int so json emits 1, not 1.0
+        - Fractional floats (1.5) → Python float with trailing zeros stripped
+        - bool is NOT treated as a number (bool subclasses int; guard checked first)
+    """
+    if isinstance(obj, bool):
+        return obj
+    if isinstance(obj, (int, float)):
+        d = decimal.Decimal(str(obj))
+        if not d.is_finite():
+            raise ValueError(
+                f"AIEP-CANON-R5: non-finite number is forbidden in canonical records (got {obj!r})")
+        if d.is_zero() and d.is_signed():
+            raise ValueError(
+                "AIEP-CANON-R5: minus-zero is forbidden in canonical records")
+        normed = d.normalize()
+        if normed == normed.to_integral_value():
+            return int(normed)   # 1.0 → 1; json.dumps emits 1
+        return float(normed)     # 1.5 → 1.5; json.dumps emits 1.5
     if isinstance(obj, str):
         return _nfc(obj)
     if isinstance(obj, dict):
-        return {_nfc(k): _nfc_object(v) for k, v in obj.items()}
+        return {_nfc(k): _norm_object(v) for k, v in obj.items()}
     if isinstance(obj, list):
-        return [_nfc_object(i) for i in obj]
-    return obj
-
-
-# ── R5: Number normalisation ──────────────────────────────────────────────────
-
-def _norm_number(n) -> str:
-    """
-    R5: Normalise number to canonical string.
-    Rules: no scientific notation; trim trailing zeros; minus-zero forbidden.
-    """
-    import decimal
-    d = decimal.Decimal(str(n))
-    if d.is_zero() and d.is_signed():
-        raise ValueError("AIEP-CANON-R5: minus-zero is forbidden in canonical records")
-    # normalize() removes trailing zeros; then format as fixed-point
-    normed = d.normalize()
-    # Force fixed-point (no scientific) by using to_eng_string if needed
-    s = format(normed, "f")
-    return s
-
-
-def _norm_object_numbers(obj):
-    """Recursively normalise all numbers. Returns object with numbers as canonical strings."""
-    # Note: json.dumps handles this correctly for well-formed Python floats;
-    # this function is for explicit validation only.
+        return [_norm_object(i) for i in obj]
     return obj
 
 
@@ -77,12 +77,14 @@ def canonical_json(obj) -> str:
     R2: No whitespace (compact separators)
     R3: Unicode NFC normalised, not escaped (ensure_ascii=False)
     R4: Consistent encoding (UTF-8)
-    R5: Number normalisation applied before serialisation
+    R5: Numbers normalised — trailing zeros stripped, no scientific notation,
+        non-finite values forbidden, minus-zero forbidden.
+        Floats with no fractional part emitted as integers: 1.0 → 1.
 
     Returns UTF-8 string ready for hashing.
     """
-    nfc_obj = _nfc_object(obj)
-    return json.dumps(nfc_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    normed = _norm_object(obj)
+    return json.dumps(normed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 # ── R4: SHA-256 hex digest ────────────────────────────────────────────────────

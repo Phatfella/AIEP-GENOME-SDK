@@ -49,6 +49,47 @@ class TestCanonSerialization(unittest.TestCase):
         self.assertIn('"t":true', result)
         self.assertIn('"f":false', result)
 
+    def test_r5_float_integral_emitted_as_integer(self):
+        # R5: 1.0 must emit as 1 (no trailing .0) for cross-language hash parity
+        self.assertEqual(canonical_json({"n": 1.0}), '{"n":1}')
+        self.assertEqual(canonical_json({"n": 100.0}), '{"n":100}')
+        self.assertEqual(canonical_json({"n": 0.0}), '{"n":0}')
+
+    def test_r5_float_fractional_preserved(self):
+        self.assertEqual(canonical_json({"n": 1.5}), '{"n":1.5}')
+        self.assertEqual(canonical_json({"n": 0.1}), '{"n":0.1}')
+
+    def test_r5_float_matches_verifier(self):
+        # Verify canonical_json(1.0) and standalone_verify canonical_json(1.0) produce same hash
+        import importlib.util as _ilu, pathlib
+        _sv_path = pathlib.Path(__file__).parent.parent / "src" / "aiep_genome" / "standalone_verify.py"
+        _spec = _ilu.spec_from_file_location("standalone_verify", _sv_path)
+        _sv = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_sv)
+        for obj in [{"n": 1.0}, {"n": 1.5}, {"n": 100.0}, {"weight": 0.0}]:
+            self.assertEqual(canonical_json(obj), _sv.canonical_json(obj),
+                             f"R5 divergence for input {obj!r}")
+
+    def test_r5_minus_zero_forbidden(self):
+        import math
+        with self.assertRaises(ValueError):
+            canonical_json({"n": -0.0})
+
+    def test_r5_nan_forbidden(self):
+        import math
+        with self.assertRaises(ValueError):
+            canonical_json({"n": math.nan})
+
+    def test_r5_inf_forbidden(self):
+        import math
+        with self.assertRaises(ValueError):
+            canonical_json({"n": math.inf})
+
+    def test_r5_bool_not_treated_as_number(self):
+        # True/False must remain true/false, not 1/0
+        self.assertEqual(canonical_json({"v": True}), '{"v":true}')
+        self.assertEqual(canonical_json({"v": False}), '{"v":false}')
+
 
 class TestSHA256(unittest.TestCase):
 
@@ -246,7 +287,7 @@ class TestSelfTest(unittest.TestCase):
         self.assertTrue(run_self_test())
 
     def test_kernel_version_is_frozen(self):
-        self.assertEqual(KERNEL_VERSION, "1.0.0")
+        self.assertEqual(KERNEL_VERSION, "1.0.1")
 
     def test_active_algorithm_is_sha256(self):
         self.assertEqual(ACTIVE_ALGORITHM, "sha-256")

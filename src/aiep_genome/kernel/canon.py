@@ -1,7 +1,7 @@
 """
 AIEP GENOME SDK — Kernel: Canonical Serialisation Engine (package copy)
 =========================================================================
-LOCKED at v1.0.0. Source of truth: kernel/canon/canon.py (compare LOCKFILE).
+LOCKED at v1.0.1. Source of truth: kernel/canon/canon.py (compare LOCKFILE).
 This file is a package-distributed copy. Do NOT modify — any change is a kernel violation.
 """
 
@@ -14,7 +14,7 @@ ALGORITHM       = "sha-256"
 DIGEST_ENCODING = "hex-lower"
 CONCAT_METHOD   = "length-prefixed-8be"
 UNICODE_FORM    = "NFC"
-KERNEL_VERSION  = "1.0.0"
+KERNEL_VERSION  = "1.0.1"
 
 _GENESIS_SENTINEL = "GENESIS"
 
@@ -24,13 +24,38 @@ def _nfc(s: str) -> str:
     return unicodedata.normalize("NFC", s)
 
 
-def _nfc_object(obj):
+def _norm_object(obj):
+    """
+    R3 + R5: Recursively prepare a JSON-compatible object for canonical serialisation.
+
+    R3: All strings NFC-normalised.
+    R5: Numbers normalised so json.dumps emits them as canonical numeric tokens:
+        - Non-finite (NaN, Inf) → ValueError
+        - Minus-zero → ValueError
+        - Integral floats (1.0) → Python int so json emits 1, not 1.0
+        - Fractional floats (1.5) → Python float with trailing zeros stripped
+        - bool is NOT treated as a number (bool subclasses int; guard checked first)
+    """
+    if isinstance(obj, bool):
+        return obj
+    if isinstance(obj, (int, float)):
+        d = decimal.Decimal(str(obj))
+        if not d.is_finite():
+            raise ValueError(
+                f"AIEP-CANON-R5: non-finite number is forbidden in canonical records (got {obj!r})")
+        if d.is_zero() and d.is_signed():
+            raise ValueError(
+                "AIEP-CANON-R5: minus-zero is forbidden in canonical records")
+        normed = d.normalize()
+        if normed == normed.to_integral_value():
+            return int(normed)   # 1.0 → 1; json.dumps emits 1
+        return float(normed)     # 1.5 → 1.5; json.dumps emits 1.5
     if isinstance(obj, str):
         return _nfc(obj)
     if isinstance(obj, dict):
-        return {_nfc(k): _nfc_object(v) for k, v in obj.items()}
+        return {_nfc(k): _norm_object(v) for k, v in obj.items()}
     if isinstance(obj, list):
-        return [_nfc_object(i) for i in obj]
+        return [_norm_object(i) for i in obj]
     return obj
 
 
@@ -41,10 +66,12 @@ def canonical_json(obj) -> str:
     R2: No whitespace (compact separators)
     R3: Unicode NFC normalised, not escaped (ensure_ascii=False)
     R4: Consistent UTF-8 encoding
-    R5: Number normalisation
+    R5: Numbers normalised — trailing zeros stripped, no scientific notation,
+        non-finite values forbidden, minus-zero forbidden.
+        Floats with no fractional part emitted as integers: 1.0 → 1.
     """
-    nfc_obj = _nfc_object(obj)
-    return json.dumps(nfc_obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    normed = _norm_object(obj)
+    return json.dumps(normed, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def sha256_hex(s: str) -> str:
@@ -143,6 +170,22 @@ def self_test_vectors() -> list:
             "computed_hash_a": concat_hash("", "x"),
             "computed_hash_b": concat_hash("x", ""),
             "expected": "computed_hash_a != computed_hash_b",
+        },
+        {
+            "id": "R5-float-integral-as-integer",
+            "rule": "R5",
+            "description": "Float 1.0 serialised as integer 1 — no trailing .0. Cross-language hash parity with JS.",
+            "input": {"n": 1.0},
+            "expected_canonical_json": '{"n":1}',
+            "expected_sha256_hex": sha256_hex(canonical_json({"n": 1.0})),
+        },
+        {
+            "id": "R5-float-fractional-preserved",
+            "rule": "R5",
+            "description": "Float 1.5 serialised as 1.5 — trailing zeros only stripped (1.50 → 1.5).",
+            "input": {"n": 1.5},
+            "expected_canonical_json": '{"n":1.5}',
+            "expected_sha256_hex": sha256_hex(canonical_json({"n": 1.5})),
         },
     ]
 

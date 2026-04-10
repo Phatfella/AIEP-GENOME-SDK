@@ -68,15 +68,16 @@ def _assert_r5_consistency() -> None:
     _sv = _ilu.module_from_spec(_spec)
     _spec.loader.exec_module(_sv)  # type: ignore[union-attr]
 
-    # Only test integer inputs -- kernel and verifier both serialise integers identically.
-    # float inputs (e.g. 1.0) diverge: kernel emits "1.0", verifier emits "1" (R5).
-    # That divergence is intentional and safe because AIEP-VECTORS v1.0.0 contains
-    # no floating-point number values in any fixture.
+    # R5 consistency: kernel and verifier must produce identical output for all numeric types.
+    # Floats (e.g. 1.0) must both emit 1 (no trailing .0) after the v1.0.1 R5 fix.
     _test_cases = [
         {"a": 1},
         {"b": [1, 2, 3]},
         {"z": "text", "a": 42},
         {"nested": {"x": 100, "y": 0}},
+        {"n": 1.0},         # R5: 1.0 → 1 in both kernel and verifier
+        {"n": 1.5},         # R5: fractional float preserved
+        {"weight": 0.0},    # R5: 0.0 → 0
     ]
     for _obj in _test_cases:
         _k = canonical_json(_obj)
