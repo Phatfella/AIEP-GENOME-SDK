@@ -1,22 +1,24 @@
 {
-  "vector_id": "AIEP-TV-R5-006",
-  "suite": "number-normalisation",
-  "profile": "core",
-  "kernel_version": "1.0.1",
-  "lockfile_version": "1.0.1",
-  "canon_spec_version": "1.0.1",
-  "schema_version_id": "aiep.canonical.v2.0.0",
-  "canon_rules_exercised": ["R5"],
-  "description": "NaN (Not a Number) MUST raise CanonError.",
-  "function_under_test": "canonical_json",
-  "input_repr": "Python: {'n': float('nan')}  /  JavaScript: {'n': NaN}  /  IEEE 754: quiet NaN",
-  "input_json_note": "JSON spec does not allow NaN. Implementations must construct this value programmatically.",
-  "expected": {
-    "raises": true,
-    "error_code": "AIEP-CANON-R5",
-    "error_contains": "non-finite"
-  },
-  "deterministic": true,
-  "cross_platform": true,
-  "notes": "R5: NaN is forbidden. Accepting NaN would destroy determinism (NaN != NaN in IEEE 754)."
+    "vector_id": "AIEP-TV-R5-006",
+    "suite": "number-normalisation",
+    "profile": "core",
+    "kernel_version": "1.0.1",
+    "lockfile_version": "1.0.1",
+    "canon_spec_version": "1.0.1",
+    "schema_version_id": "aiep.canonical.v2.0.0",
+    "canon_rules_exercised": [
+        "R5"
+    ],
+    "description": "NaN (Not a Number) MUST raise CanonError.",
+    "function_under_test": "canonical_json",
+    "input_repr": "Python: {'n': float('nan')}  /  JavaScript: {'n': NaN}  /  IEEE 754: quiet NaN",
+    "input_json_note": "JSON spec does not allow NaN. Implementations must construct this value programmatically.",
+    "expected": {
+        "raises": true,
+        "error_code": "AIEP-CANON-R5",
+        "error_contains": "non-finite"
+    },
+    "deterministic": true,
+    "cross_platform": true,
+    "notes": "R5: NaN is forbidden. Accepting NaN would destroy determinism (NaN != NaN in IEEE 754)."
 }

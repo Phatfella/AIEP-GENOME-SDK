@@ -8,14 +8,14 @@ Files are written atomically; nothing is printed-and-pasted.
 Usage (from genome-sdk root, venv active):
     python scripts/generate_vectors.py [--output DIR]
 
-Default output: ../AIEP-VECTORS/v1.1.0/
+Default output: ../AIEP-VECTORS/v1.0.0/
 
 Generates:
-    9 core vectors + 6 extended vectors (dissent-preservation + Phase 12e primitives)
+    9 core vectors + 1 extended vector (dissent-preservation)
     MANIFEST.json, SHA256SUMS.txt, CANON_SPEC.md copy (with provenance header)
 
 Cross-check:
-    aiep-verify --vectors <OUTPUT>/v1.1.0/     # must report AIEP-COMPLIANT v1.1.0
+    aiep-verify --vectors <OUTPUT>/v1.0.0/     # must report AIEP-COMPLIANT v1.0.0
 """
 from __future__ import annotations
 
@@ -36,21 +36,16 @@ try:
         concat_hash,
         pack_hash,
         negative_proof_hash,
-        dissent_hash,
-        context_reconstruction_hash,
-        recall_scope_hash,
-        consensus_record_hash,
-        swarm_inclusion_proof,
     )
 except ImportError as exc:
     print(f"ERROR: Cannot import kernel: {exc}", file=sys.stderr)
     print("Run from genome-sdk root with: pip install -e .[dev]", file=sys.stderr)
     sys.exit(1)
 
-KERNEL_VERSION      = "1.0.1"
+KERNEL_VERSION      = "1.0.3"
 LOCKFILE_VERSION    = "1.0.3"
 CANON_SPEC_VERSION  = "1.0.2"
-VECTOR_PACK_VERSION = "1.1.0"
+VECTOR_PACK_VERSION = "1.0.0"
 SCHEMA_VERSION_ID   = "aiep.canonical.v2.0.0"
 CANON_BLOBSHA       = "3dfc47c3cc1505f94b9da8466e69a147c746a8bf"
 
@@ -363,139 +358,7 @@ def build_vectors() -> list:
                 "pack_hash_branch_LOW":  ph_low,
             },
         }),
-        # ── Phase 12e: New kernel primitives ─────────────────────────────────────────
-        # These vectors verify the Phase 12e kernel primitives.
-        # profile=extended: verified by standalone_verify but not required for
-        # the AIEP-COMPLIANT verdict (which is a minimum bar for record verification).
-
-        ("dis-002.json", {
-            **_meta("dis-002", "dissent-hash",
-                    "P27: dissent_hash -- position field is tamper-evident "
-                    "(\"reject\" neq \"archive\" over same inputs)",
-                    profile="extended"),
-            "input": {
-                "branch_id":           "branch-001",
-                "conclusion_hash":     sha256_hex("conclusion-for-dis-002"),
-                "dissenting_evidence": EV_1,
-                "schema_version_id":   sv,
-            },
-            "expected": {
-                "hash_position_reject":  dissent_hash(
-                    "branch-001", sha256_hex("conclusion-for-dis-002"),
-                    "reject", EV_1, sv),
-                "hash_position_archive": dissent_hash(
-                    "branch-001", sha256_hex("conclusion-for-dis-002"),
-                    "archive", EV_1, sv),
-                "must_differ": True,
-            },
-        }),
-
-        ("recall-001.json", {
-            **_meta("recall-001", "recall",
-                    "P22: context_reconstruction_hash is order-independent "
-                    "-- same artefacts in any order produce the same hash",
-                    profile="extended"),
-            "input": {
-                "artefact_hashes_order_a": [
-                    sha256_hex("artefact-A"),
-                    sha256_hex("artefact-B"),
-                    sha256_hex("artefact-C"),
-                ],
-                "artefact_hashes_order_b": [
-                    sha256_hex("artefact-C"),
-                    sha256_hex("artefact-A"),
-                    sha256_hex("artefact-B"),
-                ],
-                "canonical_ordering_rule": "sorted-asc",
-                "schema_version_id":       sv,
-            },
-            "expected": {
-                "context_reconstruction_hash": context_reconstruction_hash(
-                    [sha256_hex("artefact-A"), sha256_hex("artefact-B"), sha256_hex("artefact-C")],
-                    "sorted-asc", sv),
-                "both_must_equal": True,
-            },
-        }),
-
-        ("recall-002.json", {
-            **_meta("recall-002", "recall",
-                    "P83: recall_scope_hash is committed at archival time -- deterministic",
-                    profile="extended"),
-            "input": {
-                "archived_dissent_hash":    sha256_hex("archived-dissent-for-recall-002"),
-                "eligible_trigger_domains": ["sensor.telemetry", "control.actuator"],
-                "plausibility_threshold_str": "0.7",
-                "schema_version_id":       sv,
-            },
-            "expected": {
-                "recall_scope_hash": recall_scope_hash(
-                    sha256_hex("archived-dissent-for-recall-002"),
-                    ["sensor.telemetry", "control.actuator"],
-                    "0.7", sv),
-            },
-        }),
-
-        ("swarm-001.json", {
-            **_meta("swarm-001", "swarm",
-                    "P90: consensus_record_hash is order-independent "
-                    "-- contributing_hashes in any order produce the same hash",
-                    profile="extended"),
-            "input": {
-                "branch_id":              "branch-001",
-                "global_dominance_state": "HIGH",
-                "contributing_hashes_order_a": [
-                    sha256_hex("node-A-dominance"),
-                    sha256_hex("node-B-dominance"),
-                ],
-                "contributing_hashes_order_b": [
-                    sha256_hex("node-B-dominance"),
-                    sha256_hex("node-A-dominance"),
-                ],
-                "schema_version_id": sv,
-            },
-            "expected": {
-                "consensus_record_hash": consensus_record_hash(
-                    "branch-001", "HIGH",
-                    [sha256_hex("node-A-dominance"), sha256_hex("node-B-dominance")],
-                    sv),
-                "both_must_equal": True,
-            },
-        }),
-
-        ("swarm-002.json", {
-            **_meta("swarm-002", "swarm",
-                    "P90: swarm_inclusion_proof -- exclusion of a dissenting node "
-                    "is cryptographically committed and detectable",
-                    profile="extended"),
-            "input": {
-                "consensus_record_hash": consensus_record_hash(
-                    "branch-001", "HIGH",
-                    [sha256_hex("node-A-dominance"), sha256_hex("node-B-dominance")],
-                    sv),
-                "contributing_hashes": [
-                    sha256_hex("node-A-dominance"),
-                    sha256_hex("node-B-dominance"),
-                ],
-                "excluded_hashes": [
-                    sha256_hex("node-C-dissent"),
-                ],
-                "exclusion_reasons": {
-                    sha256_hex("node-C-dissent"): "plausibility below threshold",
-                },
-                "schema_version_id": sv,
-            },
-            "expected": {
-                "swarm_inclusion_proof": swarm_inclusion_proof(
-                    consensus_record_hash(
-                        "branch-001", "HIGH",
-                        [sha256_hex("node-A-dominance"), sha256_hex("node-B-dominance")],
-                        sv),
-                    [sha256_hex("node-A-dominance"), sha256_hex("node-B-dominance")],
-                    [sha256_hex("node-C-dissent")],
-                    {sha256_hex("node-C-dissent"): "plausibility below threshold"},
-                    sv),
-            },
-        }),    ]
+    ]
 
 
 # â”€â”€ File writing helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
