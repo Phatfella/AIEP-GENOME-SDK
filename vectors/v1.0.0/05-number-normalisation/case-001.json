@@ -1,0 +1,21 @@
+{
+  "vector_id": "AIEP-TV-R5-001",
+  "suite": "number-normalisation",
+  "profile": "core",
+  "kernel_version": "1.0.1",
+  "lockfile_version": "1.0.1",
+  "canon_spec_version": "1.0.1",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": ["R5"],
+  "description": "Integral-valued float 1.0 must serialise without decimal point.",
+  "function_under_test": "canonical_json",
+  "input": {"n": 1},
+  "input_note": "Python: {'n': 1.0}. JSON represents 1.0 as 1 — test implementations must construct this as a float/double.",
+  "expected": {
+    "canonical_json_output": "{\"n\":1}",
+    "canonical_json_sha256": "2bfd14f43d17fc7cea24e0917a8879b4b2f880b8baeec1b9d90fbaad655e71bd"
+  },
+  "deterministic": true,
+  "cross_platform": true,
+  "notes": "R5: 1.0 → 1. Any language that serialises 1.0 as '1.0' in canonical output is non-conformant."
+}

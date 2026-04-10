@@ -1,0 +1,21 @@
+{
+  "vector_id": "AIEP-TV-R5-003",
+  "suite": "number-normalisation",
+  "profile": "core",
+  "kernel_version": "1.0.1",
+  "lockfile_version": "1.0.1",
+  "canon_spec_version": "1.0.1",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": ["R5"],
+  "description": "Large integral-valued float 100000.0 must serialise as integer 100000.",
+  "function_under_test": "canonical_json",
+  "input": {"n": 100000},
+  "input_note": "Python: {'n': 100000.0}. Verify no scientific notation (100000, not 1e5 or 1E5).",
+  "expected": {
+    "canonical_json_output": "{\"n\":100000}",
+    "canonical_json_sha256": "f8c9d862b09bd554858591decf634c11cc1d013869a58adcb3d62166abd79da0"
+  },
+  "deterministic": true,
+  "cross_platform": true,
+  "notes": "R5: integral float → integer, no scientific notation. 100000.0 → 100000 (not 1e5 or 1.0e5)."
+}

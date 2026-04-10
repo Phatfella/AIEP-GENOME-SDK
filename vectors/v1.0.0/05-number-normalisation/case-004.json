@@ -1,0 +1,21 @@
+{
+  "vector_id": "AIEP-TV-R5-004",
+  "suite": "number-normalisation",
+  "profile": "core",
+  "kernel_version": "1.0.1",
+  "lockfile_version": "1.0.1",
+  "canon_spec_version": "1.0.1",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": ["R5"],
+  "description": "Positive zero float 0.0 must serialise as integer 0.",
+  "function_under_test": "canonical_json",
+  "input": {"n": 0},
+  "input_note": "Python: {'n': 0.0}. Positive zero — not to be confused with minus-zero which is FORBIDDEN.",
+  "expected": {
+    "canonical_json_output": "{\"n\":0}",
+    "canonical_json_sha256": "f3013f933b9fb80ab6d995e7ad9da36f683837ba1d81e950c943d40111eac2f0"
+  },
+  "deterministic": true,
+  "cross_platform": true,
+  "notes": "R5: 0.0 → 0. Positive zero is permitted. Minus-zero (-0.0) is separately FORBIDDEN."
+}

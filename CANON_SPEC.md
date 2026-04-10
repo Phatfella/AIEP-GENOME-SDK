@@ -1,11 +1,11 @@
 # AIEP Canon Specification
 
-**Canon Spec Version:** 1.0.0
+**Canon Spec Version:** 1.0.1
 **Locked at:** 2026-02-27T00:00:00Z
 **Authority source:** `kernel/canon/canon.py`
-**Authority BlobSha:** `3b100b43bf59ce6f6d35397e8c8c173a4447de5d`
-**Kernel version:** 1.0.0
-**LOCKFILE version:** 1.0.0
+**Authority BlobSha:** `ced9bbaab5c9e34c549a4718e8edf33bf0f7ff4e`
+**Kernel version:** 1.0.1
+**LOCKFILE version:** 1.0.1
 
 This document is the single language-agnostic authority for all AIEP
 canonicalisation and hashing behaviour. The Python kernel implements
@@ -84,6 +84,7 @@ Numbers in canonical records MUST be serialised as follows:
 - No scientific notation (`1e5` is forbidden; use `100000`)
 - No trailing zeros after decimal point (`1.50` → `1.5`, `1.0` → `1`)
 - Minus-zero (`-0`, `-0.0`) is FORBIDDEN and MUST raise an error
+- Non-finite numbers (NaN, Infinity, -Infinity) are FORBIDDEN and MUST raise an error
 
 ---
 
@@ -159,7 +160,7 @@ where `H_concat` is the length-prefixed concatenation hash defined in R7.
 ## What This Specification Covers
 
 Rules R1–R8 govern canonical serialisation and hashing only.
-They are Layer 0 — non-negotiable and locked at LOCKFILE_VERSION 1.0.0.
+They are Layer 0 — non-negotiable and locked at LOCKFILE_VERSION 1.0.1.
 
 ## What This Specification Does Not Cover
 

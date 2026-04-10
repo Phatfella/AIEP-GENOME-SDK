@@ -1,0 +1,20 @@
+{
+  "vector_id": "AIEP-TV-R5-002",
+  "suite": "number-normalisation",
+  "profile": "core",
+  "kernel_version": "1.0.1",
+  "lockfile_version": "1.0.1",
+  "canon_spec_version": "1.0.1",
+  "schema_version_id": "aiep.canonical.v2.0.0",
+  "canon_rules_exercised": ["R5"],
+  "description": "Fractional float 1.5 must serialise preserving the decimal part.",
+  "function_under_test": "canonical_json",
+  "input": {"n": 1.5},
+  "expected": {
+    "canonical_json_output": "{\"n\":1.5}",
+    "canonical_json_sha256": "cb14d55cfe562fd6592d919f5dfacfa8708687b746a1d110c6dd5529c410e772"
+  },
+  "deterministic": true,
+  "cross_platform": true,
+  "notes": "R5: fractional floats preserve the decimal part. 1.5 → 1.5 (only trailing zeros are stripped)."
+}
