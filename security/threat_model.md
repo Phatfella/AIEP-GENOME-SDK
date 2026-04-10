@@ -16,6 +16,7 @@
 | Layer 2 — Policy | Policy hash bypass, non-deterministic evaluation | AV-010 |
 | Layer 3 — Enterprise | Auth bypass, tenancy bleed, storage tampering | Out of scope — per-deployment |
 | Adapters (FC §6) | Adapter substitution, non-deterministic adapter | AV-011 |
+| Cross-layer       | Authorised write-access fabrication             | AV-012 |
 
 ---
 
@@ -93,6 +94,24 @@
 
 ---
 
+## Cross-Layer Attack Vectors
+
+### AV-012: Authorised Write-Access Fabrication
+**Threat:** An authorised user with write access to the evidence and reasoning ledgers
+constructs a false but internally consistent set of records that passes all hash checks.
+The records are fabricated *before* commitment — the kernel cannot distinguish genuine
+records from deliberately constructed ones.
+**Control:** None at the kernel level. AIEP provides audit integrity, not access integrity.
+The kernel can prove records were not tampered with *after* commitment; it cannot prove
+records were not fabricated *before* commitment.
+Mitigation is at Layer 3: access controls, write-path logging, and out-of-band attestation
+of record provenance. This limitation is explicitly disclosed in `CONFORMANCE.md` under
+`BOUNDARIES`.
+**Residual risk:** Present and documented. Accepted. All AIEP deployments must implement
+Layer 3 access controls appropriate to their threat environment.
+
+---
+
 ## Fail-Closed State Diagram
 
 ```
@@ -148,3 +167,4 @@ If SHA-256 is broken (affects AV-001, AV-009, AV-010 simultaneously):
 | NFC bypass | Eliminated — NFC on all strings | R3 |
 | Gate bypass | Mitigated — GateResult pattern, data not exception | FC §2 |
 | Adapter non-determinism | Detectable — pack_hash replay | AIEP-REPLAY-001, AV-011 |
+| Write-access fabrication | Documented limitation — Layer 3 controls required | AV-012 |

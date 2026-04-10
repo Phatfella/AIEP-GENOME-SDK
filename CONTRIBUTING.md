@@ -29,7 +29,11 @@ test: short description
 docs: short description
 ```
 
-Reference the relevant patent number in the commit body, e.g.:
+Reference the relevant internal specification reference (P-number and section) in the
+commit body. Use internal P-numbers only — do **not** reference published application
+numbers (e.g. GB2519711.2) in commit messages. Published application numbers in public
+git history before patent grant create prior art acknowledgement that an examiner can
+use. After grant, the commit history becomes an asset; before grant, keep it internal.
 
 ```
 feat: add ReactivationThreshold crossing detection
