@@ -16,7 +16,12 @@ Usage:
   aiep-verify record.json --json       # machine-readable output
 """
 from __future__ import annotations
-import sys, json, hashlib, unicodedata, argparse, decimal
+import sys
+import json
+import hashlib
+import unicodedata
+import argparse
+import decimal
 from pathlib import Path
 
 VERIFIER_VERSION     = "1.0.0"
@@ -38,7 +43,8 @@ def _nfc(s: str) -> str:
 
 def _nfc_object(obj):
     """R3: Recursively NFC-normalise all strings in a JSON-compatible structure."""
-    if isinstance(obj, str):   return _nfc(obj)
+    if isinstance(obj, str):
+        return _nfc(obj)
     if isinstance(obj, dict):
         for k in obj.keys():
             if not isinstance(k, str):
@@ -46,9 +52,12 @@ def _nfc_object(obj):
                     f"R1: object member name must be a string, "
                     f"got {type(k).__name__} ({k!r})")
         return {_nfc(k): _nfc_object(v) for k, v in obj.items()}
-    if isinstance(obj, list):  return [_nfc_object(i) for i in obj]
-    if isinstance(obj, bool):  return obj
-    if isinstance(obj, (int, float)): return obj
+    if isinstance(obj, list):
+        return [_nfc_object(i) for i in obj]
+    if isinstance(obj, bool):
+        return obj
+    if isinstance(obj, (int, float)):
+        return obj
     return obj
 
 # -- R5: Number normalisation ------------------------------------------------
@@ -496,7 +505,9 @@ def _result(valid, verdict, checks, errors):
 def verify_record(record: dict, self_test_failures: list) -> dict:
     checks, errors = [], []
     def ok(n, d):   checks.append({"check": n, "result": "PASS", "detail": d})
-    def fail(n, d): checks.append({"check": n, "result": "FAIL", "detail": d}); errors.append(f"{n}: {d}")
+    def fail(n, d):
+        checks.append({"check": n, "result": "FAIL", "detail": d})
+        errors.append(f"{n}: {d}")
 
     if self_test_failures:
         fail("SELF_TEST",
@@ -663,14 +674,16 @@ def _print_record(result: dict) -> None:
     print("\u2500" * 60)
     print(f"  VERDICT: {result['verdict'].upper()}")
     if not result["valid"]:
-        for e in result["errors"]: print(f"    \u2192 {e}")
+        for e in result["errors"]:
+            print(f"    \u2192 {e}")
     print()
 
 def _print_suite(suite: dict) -> None:
     print(f"\nAIEP Conformance Suite  |  Verifier v{VERIFIER_VERSION}  |  Canon {CANON_SPEC_VERSION}")
     print("\u2500" * 60)
     if "version_errors" in suite:
-        for e in suite["version_errors"]: print(f"  \u2717 VERSION: {e}")
+        for e in suite["version_errors"]:
+            print(f"  \u2717 VERSION: {e}")
     elif "error" in suite:
         print(f"  \u2717 {suite['error']}")
     else:
@@ -708,19 +721,23 @@ def main() -> None:
         else:
             status = "PASS" if not failures else "FAIL"
             print(f"AIEP self-test  |  Canon {CANON_SPEC_VERSION}  |  {status}")
-            for f in failures: print(f"  \u2717 {f}")
+            for f in failures:
+                print(f"  \u2717 {f}")
         sys.exit(0 if not failures else 1)
 
     if failures:
         print("FATAL: Canon self-test failed -- verifier has drifted from CANON_SPEC.",
               file=sys.stderr)
-        for f in failures: print(f"  {f}", file=sys.stderr)
+        for f in failures:
+            print(f"  {f}", file=sys.stderr)
         sys.exit(2)
 
     if args.vectors:
         suite = run_suite(Path(args.vectors), failures)
-        if args.json: print(json.dumps(suite, indent=2))
-        else:         _print_suite(suite)
+        if args.json:
+            print(json.dumps(suite, indent=2))
+        else:
+            _print_suite(suite)
         sys.exit(0 if suite["core_compliant"] else 1)
 
     if not args.record:
@@ -730,8 +747,10 @@ def main() -> None:
     data = (json.load(sys.stdin) if args.record == "-"
             else json.loads(Path(args.record).read_text(encoding="utf-8")))
     result = verify_record(data, failures)
-    if args.json: print(json.dumps(result, indent=2))
-    else:         _print_record(result)
+    if args.json:
+        print(json.dumps(result, indent=2))
+    else:
+        _print_record(result)
     sys.exit(0 if result["valid"] else 1)
 
 if __name__ == "__main__":
