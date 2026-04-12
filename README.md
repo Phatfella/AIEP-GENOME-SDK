@@ -1,22 +1,70 @@
-# AIEP GENOME SDK v1.0.0 — Kernel Architecture
+# AIEP — Verifiable AI Outputs
 
 [![CI](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/Phatfella/AIEP-GENOME-SDK/actions/workflows/ci.yml)
 [![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.0.0%20PASS-green)](CONFORMANCE.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v1.0.0-blue)](https://github.com/Phatfella/AIEP-GENOME-SDK/releases/tag/v1.0.0)
 
-**Architected Instruction and Evidence Protocol**  
-**Classification:** Protocol Reference Implementation + Production SaaS Foundation  
-**Kernel:** FROZEN at v1.0.0
+AIEP produces evidence-bound outputs using real sources and cryptographic proof.
+
+Every response is backed by real, retrievable sources — hash-bound, deterministic, and independently replayable. Not a model. A protocol that governs how any system retrieves evidence, validates it, and produces outputs you can verify.
+
+**→ [aiep.dev](https://aiep.dev)** · **[ADOPTERS.md](ADOPTERS.md)** · **[CONFORMANCE.md](CONFORMANCE.md)**
 
 ---
 
-## Architecture
+## Try it in 60 seconds
+
+```bash
+pip install aiep-genome-sdk
+```
+
+```python
+from aiep.genome import verify
+
+result = verify("Is inflation rising?")
+print(result)
+```
+
+Output:
+
+```json
+{
+  "answer": "...",
+  "sources": ["https://...", "https://..."],
+  "hash": "0xabc123...",
+  "confidence": "verified"
+}
+```
+
+---
+
+## Standard AI vs AIEP
+
+| Standard AI | AIEP |
+|---|---|
+| Generates answers | Produces evidence-bound outputs |
+| No guaranteed sources | Real, retrievable sources |
+| No audit trail | Cryptographic proof |
+| Non-deterministic | Deterministic & replayable |
+
+See [examples/gpt-vs-aiep](https://aiep.dev/examples/gpt-vs-aiep) — same question, two different systems, side by side.
+
+---
+
+## What this SDK is
+
+This is the GENOME SDK — the reference implementation of the AIEP constitutional stack.
+
+Install it, run the conformance suite, get `AIEP-COMPLIANT v1.0.0`. That certificate means every decision your system makes can be independently verified, replayed, and audited — by a regulator, a court, or a machine — at any point in the future.
+
+**Kernel:** FROZEN at v1.0.0 · **Classification:** Protocol Reference Implementation + Production SaaS Foundation
+
+---
+
+## Repository structure
 
 ```
-AIEP-GENOME-SDK/
-│
-├── kernel/                 ← FROZEN. Cryptographic OS kernel.
 │   ├── canon/              ← Canonical serialisation (R1–R8)
 │   ├── hashing/            ← Algorithm registry + collision policy
 │   ├── validation/         ← Invariants I1–I6, GateResult
