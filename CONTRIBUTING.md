@@ -4,8 +4,22 @@ Thank you for your interest in the Architected Instruction and Evidence Protocol
 All contributions must comply with the AIEP GENOME kernel invariants and the
 canonical hash scheme (FC v1.0.0, Schema v2.0.0).
 
-## Getting Started
+## Adopting AIEP — five steps from interested to conformant
 
+1. **Install the SDK** — `pip install aiep-genome-sdk`
+2. **Run the self-test** — `aiep-verify --self-test` → confirm `AIEP-COMPLIANT v1.0.0`
+3. **Run the conformance suite** against the canonical vectors:
+   ```bash
+   git clone https://github.com/Phatfella/AIEP-VECTORS
+   aiep-verify --vectors ./AIEP-VECTORS/vectors/v1.0.0/
+   ```
+   All 24 vectors must pass.
+4. **Add `CONFORMANCE.md`** to your repo — copy the template from this repo and update the implementation details.
+5. **Add yourself to [ADOPTERS.md](ADOPTERS.md)** — open a pull request with your implementation listed.
+
+There is no approval process. Conformance is self-certified and machine-verifiable.
+
+---
 ```bash
 git clone <repo-url>
 pip install -e ".[dev]"

@@ -34,7 +34,7 @@ dev = ["pytest>=7", "jsonschema>=4"]
 "Repository" = "https://github.com/Phatfella/AIEP-GENOME-SDK"
 "Changelog" = "https://github.com/Phatfella/AIEP-GENOME-SDK/blob/main/CHANGELOG.md"
 "Patent" = "https://www.ipo.gov.uk/p-ipsum/Case/ApplicationNumber/GB2519711.2"
-"AIEP Hub" = "https://aiep.protocol"
+"AIEP Hub" = "https://aiep.dev"
 [project.scripts]
 aiep-genome = "aiep_genome.__main__:main"
 aiep-verify = "aiep_genome.standalone_verify:main"
