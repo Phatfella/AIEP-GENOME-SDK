@@ -373,12 +373,38 @@ def _run_det(v: dict) -> tuple:
 def _run_tamp(v: dict) -> tuple:
     """
     tamper-detection vectors.
-    TAMP-001: evidence_ledger_original / evidence_ledger_tampered
-    TAMP-002: reasoning_ledger_original / reasoning_ledger_tampered
+    New format: committed_record (with stored_pack_hash) + tampered_record.
+    Legacy format: input with evidence_ledger_original/tampered or reasoning_ledger_original/tampered.
     """
-    inp = v["input"]
     exp = v["expected"]
 
+    if "committed_record" in v:
+        # New vector format
+        committed  = v["committed_record"]
+        tampered   = v["tampered_record"]
+        got_orig  = pack_hash(committed["evidence_ledger"],
+                              committed["reasoning_ledger"],
+                              committed["schema_version_id"])
+        got_tamp  = pack_hash(tampered["evidence_ledger"],
+                              tampered["reasoning_ledger"],
+                              tampered["schema_version_id"])
+        failures = []
+        if got_orig != committed["stored_pack_hash"]:
+            failures.append(f"committed stored_pack_hash MISMATCH: "
+                            f"got {got_orig[:16]}..., "
+                            f"stored {committed['stored_pack_hash'][:16]}...")
+        if got_tamp != exp["tampered_pack_hash"]:
+            failures.append(f"tampered_pack_hash MISMATCH: got {got_tamp[:16]}..., "
+                            f"expected {exp['tampered_pack_hash'][:16]}...")
+        if got_orig == got_tamp:
+            failures.append("TAMPER NOT DETECTED: original == tampered hash")
+        if failures:
+            return False, " | ".join(failures)
+        return True, (f"tamper detected: "
+                      f"original {got_orig[:12]}... != tampered {got_tamp[:12]}...")
+
+    # Legacy format
+    inp = v["input"]
     if "evidence_ledger_tampered" in inp:
         got_orig = pack_hash(inp["evidence_ledger_original"],
                              inp["reasoning_ledger"], inp["schema_version_id"])
@@ -408,21 +434,40 @@ def _run_tamp(v: dict) -> tuple:
                   f"original {got_orig[:12]}... != tampered {got_tamp[:12]}...")
 
 def _run_neg(v: dict) -> tuple:
-    """negative-proof vectors -- direct negative_proof_hash computation."""
+    """
+    negative-proof vectors.
+    NEG-001: compute negative_proof_hash from individual fields.
+    NEG-002: full record with evidence_ledger containing a negative_proof entry;
+             verify pack_hash over the whole record.
+    """
     inp = v["input"]
     exp = v["expected"]
-    got = negative_proof_hash(
-        inp["expected_evidence_type"],
-        inp["gap_window_start"],
-        inp["gap_window_end"],
-        inp["schema_version_id"],
-    )
-    expected_hash = exp["negative_proof_hash"]
+
+    if "expected_evidence_type" in inp:
+        # NEG-001 format: direct negative_proof_hash computation
+        got = negative_proof_hash(
+            inp["expected_evidence_type"],
+            inp["gap_window_start"],
+            inp["gap_window_end"],
+            inp["schema_version_id"],
+        )
+        expected_hash = exp["negative_proof_hash"]
+        if got != expected_hash:
+            return False, (f"negative_proof_hash MISMATCH\n"
+                           f"  expected: {expected_hash}\n"
+                           f"  got:      {got}")
+        return True, f"negative_proof_hash verified {got[:16]}...{got[-8:]}"
+
+    # NEG-002 format: full record -- verify pack_hash
+    got = pack_hash(inp["evidence_ledger"],
+                    inp["reasoning_ledger"],
+                    inp["schema_version_id"])
+    expected_hash = exp["pack_hash"]
     if got != expected_hash:
-        return False, (f"negative_proof_hash MISMATCH\n"
+        return False, (f"pack_hash MISMATCH\n"
                        f"  expected: {expected_hash}\n"
                        f"  got:      {got}")
-    return True, f"negative_proof_hash verified {got[:16]}...{got[-8:]}"
+    return True, f"pack_hash verified {got[:16]}...{got[-8:]}"
 
 def _run_adm(v: dict) -> tuple:
     """
@@ -482,6 +527,53 @@ def _run_dis(v: dict) -> tuple:
     return True, (f"both branches preserved: "
                   f"HIGH {h_high[:12]}... != LOW {h_low[:12]}...")
 
+# Special numeric inputs for R5 error vectors (not representable in JSON).
+import math as _math
+_R5_ERROR_INPUTS = {
+    "AIEP-TV-R5-005": -0.0,
+    "AIEP-TV-R5-006": _math.nan,
+    "AIEP-TV-R5-007": _math.inf,
+}
+
+def _run_r5(v: dict) -> tuple:
+    """
+    number-normalisation vectors (R5).
+    Normal cases: canonical_json(input) must match expected.canonical_json_output.
+    Error cases:  canonical_json({"n": special}) must raise CanonError.
+    """
+    exp = v["expected"]
+    vid = v.get("vector_id", "")
+
+    if exp.get("raises"):
+        if vid not in _R5_ERROR_INPUTS:
+            return False, f"Error case {vid} has no special input registered in _R5_ERROR_INPUTS"
+        special = _R5_ERROR_INPUTS[vid]
+        try:
+            canonical_json({"n": special})
+            return False, f"Expected CanonError but no exception was raised (input: {special!r})"
+        except CanonError as e:
+            ec = exp.get("error_contains", "")
+            if ec and ec not in str(e):
+                return False, (f"CanonError raised but message does not contain {ec!r}: "
+                               f"{str(e)!r}")
+            return True, f"CanonError raised correctly: {str(e)[:80]}"
+    else:
+        inp = v["input"]
+        got = canonical_json(inp)
+        expected_output = exp["canonical_json_output"]
+        expected_sha    = exp["canonical_json_sha256"]
+        got_sha = sha256_hex(got)
+        failures = []
+        if got != expected_output:
+            failures.append(f"output MISMATCH: got {got!r}, expected {expected_output!r}")
+        if got_sha != expected_sha:
+            failures.append(f"SHA256 MISMATCH: got {got_sha[:16]}..., "
+                            f"expected {expected_sha[:16]}...")
+        if failures:
+            return False, " | ".join(failures)
+        return True, f"canonical_json verified {got!r}"
+
+
 # Dispatch table -- no fallback, no implicit pass
 _SUITE_RUNNERS = {
     "deterministic-replay":  _run_det,
@@ -489,6 +581,7 @@ _SUITE_RUNNERS = {
     "negative-proof":        _run_neg,
     "admissibility":         _run_adm,
     "dissent-preservation":  _run_dis,
+    "number-normalisation":  _run_r5,
 }
 
 # ===============================================================

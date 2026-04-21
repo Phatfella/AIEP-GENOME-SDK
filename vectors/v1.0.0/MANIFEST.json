@@ -1,8 +1,9 @@
 {
   "manifest_version": "1.0.0",
+  "vector_pack_version": "1.0.0",
   "kernel_version": "1.0.1",
   "lockfile_version": "1.0.1",
-  "canon_spec_version": "1.0.1",
+  "canon_spec_version": "1.0.0",
   "schema": "../schema/vector.schema.json",
   "total_vectors": 17,
   "suites": {

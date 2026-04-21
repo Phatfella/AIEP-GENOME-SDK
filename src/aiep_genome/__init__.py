@@ -21,8 +21,8 @@ Two primary surfaces:
 from __future__ import annotations
 
 __version__ = "1.0.0"
-KERNEL_VERSION = "1.0.0"
-LOCKFILE_VERSION = "1.0.0"
+KERNEL_VERSION = "1.0.3"
+LOCKFILE_VERSION = "1.0.3"
 
 # FIX-013: The kernel's own constitutional rules are committed here.
 # sha256_hex(canonical_json({rules, constraints, claims_hash, boundaries_hash, canon_spec_hash}))

@@ -20,21 +20,20 @@ pip install aiep-genome-sdk
 ```
 
 ```python
-from aiep.genome import verify
+from aiep_genome.kernel.canon import pack_hash
 
-result = verify("Is inflation rising?")
-print(result)
+h = pack_hash(
+    evidence_ledger=[{"evidence_id": "ev-001", "content": "CPI rose 3.2% YoY"}],
+    reasoning_ledger=[{"conclusion": "Inflation is rising based on CPI data."}],
+    schema_version_id="aiep.canonical.v2.0.0",
+)
+print(h)  # deterministic SHA-256 hex — identical on any machine
 ```
 
 Output:
 
-```json
-{
-  "answer": "...",
-  "sources": ["https://...", "https://..."],
-  "hash": "0xabc123...",
-  "confidence": "verified"
-}
+```
+cb1a5394a39cb30ad2b9bdeb4afae26d25f7f9afbb4026f74af3b36e7146e3ae
 ```
 
 ---

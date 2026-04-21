@@ -2,18 +2,18 @@
 
 ## Status
 
-[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.1.0%20PASS-green)](CONFORMANCE.md)
+[![AIEP Conformance](https://img.shields.io/badge/AIEP--VECTORS-v1.0.0%20PASS-green)](CONFORMANCE.md)
 [![TS Cross-Conformance](https://img.shields.io/badge/@aiep%2Fverify-15%2F15%20PASS-blue)](packages/verify/)
 [![Malformed Input](https://img.shields.io/badge/malformed--input-6%2F6%20REJECT-green)](CONFORMANCE.md)
 
-**AIEP-VECTORS v1.1.0** — 15/15 PASS — verdict: AIEP-COMPLIANT v1.1.0  
+**AIEP-VECTORS v1.0.0** — 15/15 PASS — verdict: AIEP-COMPLIANT v1.0.0  
 **AIEP-VECTORS v1.0.0-malformed** — 6/6 REJECT (all inputs correctly rejected)  
 **TypeScript @aiep/verify** — 15/15 core + 6/6 malformed + 7/7 self-test PASS  
 **AIEP-VALIDATOR** — 10/10 CC-001–CC-005 self-test PASS  
-**Kernel Version** — 1.1.0  
-**LOCKFILE Version** — 1.0.0  
-**CANON_SPEC Version** — 1.0.0  
-**Last verified** — 2026-05-24
+**Kernel Version** — 1.0.3  
+**LOCKFILE Version** — 1.0.3  
+**CANON_SPEC Version** — 1.0.2  
+**Last verified** — 2026-04-10
 
 ## Verdict Semantics
 
@@ -96,8 +96,8 @@ Summary:
 
 ## Vector Files
 
-Test vectors are in [`vectors/v1.1.0/`](vectors/v1.1.0/) (genome-sdk) and separately in the
-[AIEP-VECTORS repository](https://github.com/Phatfella/AIEP-VECTORS) at tag `v1.1.0`.
+Test vectors are in [`vectors/v1.0.0/`](vectors/v1.0.0/) (genome-sdk) and separately in the
+[AIEP-VECTORS repository](https://github.com/Phatfella/AIEP-VECTORS) at tag `v1.0.0`.
 
 Malformed-input rejection vectors are at tag `v1.0.0-malformed`.
 
@@ -142,13 +142,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install aiep-genome-sdk
-      - run: aiep-verify --vectors path/to/AIEP-VECTORS/v1.1.0/ --json
+      - run: aiep-verify --vectors path/to/AIEP-VECTORS/v1.0.0/ --json
 ```
 
 ### Badge
 
 ```markdown
-[![AIEP-COMPLIANT](https://img.shields.io/badge/AIEP-v1.1.0-green)](CONFORMANCE.md)
+[![AIEP-COMPLIANT](https://img.shields.io/badge/AIEP-v1.0.0-green)](CONFORMANCE.md)
 ```
 
 ### CONFORMANCE.md template
@@ -158,15 +158,15 @@ Copy and fill in the following template as `CONFORMANCE.md` in your repo:
 ```markdown
 # <Your System Name> — AIEP Conformance
 
-[![AIEP-COMPLIANT](https://img.shields.io/badge/AIEP-v1.1.0-green)](CONFORMANCE.md)
+[![AIEP-COMPLIANT](https://img.shields.io/badge/AIEP-v1.0.0-green)](CONFORMANCE.md)
 
-**AIEP-VECTORS version tested:** v1.1.0  
+**AIEP-VECTORS version tested:** v1.0.0  
 **Last verified:** <date>  
 **Kernel used:** aiep-genome-sdk v1.0.0 / @aiep/verify v1.0.0
 
 ## Pack hash cross-check
 
-<date> — ran `aiep-verify --vectors AIEP-VECTORS/v1.1.0/` — result: AIEP-COMPLIANT v1.1.0
+<date> — ran `aiep-verify --vectors AIEP-VECTORS/v1.0.0/` — result: AIEP-COMPLIANT v1.0.0
 
 ## Malformed input
 
@@ -186,7 +186,7 @@ None.
 
 If your repo implements the hash kernel in a language other than Python, it must additionally:
 
-- Run all 15 AIEP-VECTORS v1.1.0 vectors and report the same `expected.pack_hash` values
+- Run all 15 AIEP-VECTORS v1.0.0 vectors and report the same `expected.pack_hash` values
 - Run all 6 malformed-input vectors and confirm each raises/throws — not returns 0x000...
 - Publish its `concatHash` implementation source and confirm the 8-byte big-endian length-prefix
   encoding matches [CANON_SPEC.md § R7](CANON_SPEC.md)

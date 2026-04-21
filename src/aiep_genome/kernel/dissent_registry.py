@@ -46,9 +46,24 @@ from aiep_genome.kernel.canon import (
     canonical_json,
     sha256_hex,
     concat_hash,
-    dissent_hash,
-    dissent_resolution_chain_hash,
 )
+
+
+def _dissent_hash(
+    branch_id: str,
+    conclusion_hash: str,
+    position: str,
+    dissenting_evidence: list,
+    schema_version_id: str,
+) -> str:
+    """P27: H(branch_id || conclusion_hash || position || canonical(evidence) || schema)"""
+    return sha256_hex(
+        concat_hash(
+            branch_id, conclusion_hash, position,
+            canonical_json(dissenting_evidence),
+            schema_version_id,
+        )
+    )
 
 
 # ── Data types ─────────────────────────────────────────────────────────────────
@@ -156,7 +171,7 @@ class DissentRegistry:
                 f"Invalid position {position!r}. Must be one of {sorted(self.VALID_POSITIONS)}"
             )
 
-        dh = dissent_hash(
+        dh = _dissent_hash(
             branch_id, conclusion_hash, position,
             dissenting_evidence, schema_version_id,
         )
