@@ -46,7 +46,9 @@ lines = [
 for fp in FILES:
     p = ROOT / fp
     if p.exists():
-        digest = hashlib.sha256(p.read_bytes()).hexdigest()
+        # Normalise to LF so hashes are platform-independent (CRLF vs LF)
+        content = p.read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8")
+        digest = hashlib.sha256(content).hexdigest()
         lines.append(f"{digest}  {fp}")
     else:
         print(f"MISSING: {fp}")

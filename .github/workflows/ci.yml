@@ -42,7 +42,9 @@ jobs:
                   continue
               sha, fp = line.split('  ', 1)
               try:
-                  actual = hashlib.sha256(pathlib.Path(fp).read_bytes()).hexdigest()
+                  # Normalise to LF so hashes are platform-independent (CRLF vs LF)
+                  raw = pathlib.Path(fp).read_text(encoding='utf-8').replace('\r\n', '\n').encode('utf-8')
+                  actual = hashlib.sha256(raw).hexdigest()
                   if actual != sha:
                       print(f'MISMATCH: {fp}')
                       fails += 1
