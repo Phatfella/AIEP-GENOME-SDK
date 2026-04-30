@@ -73,9 +73,9 @@ class PlausibilityConstraint:
         if not self.constraint_id:
             return False, "constraint_id is required"
         if not isinstance(self.constraint_class, ConstraintClass):
-            return False, f"constraint_class must be a ConstraintClass member"
+            return False, "constraint_class must be a ConstraintClass member"
         if not isinstance(self.result, ConstraintResult):
-            return False, f"result must be a ConstraintResult member"
+            return False, "result must be a ConstraintResult member"
         if not (1 <= self.severity_level <= 5):
             return False, (
                 f"severity_level {self.severity_level!r} out of range [1, 5]"

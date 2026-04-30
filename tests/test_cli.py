@@ -229,7 +229,7 @@ class TestCLIAdopt(unittest.TestCase):
         root_ledger = os.path.join(tmp, "genome", "ledger.py")
         self.assertTrue(
             os.path.exists(src_ledger) or os.path.exists(root_ledger),
-            f"no ledger.py found",
+            "no ledger.py found",
         )
 
     def test_adopt_reports_files_created(self):

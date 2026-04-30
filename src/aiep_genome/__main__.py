@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -82,8 +81,8 @@ def _cmd_init(args) -> int:
     print("Next steps")
     print("----------")
     print(f"  cd {dest}")
-    print(f"  pip install -e \".[dev]\"")
-    print(f"  pytest")
+    print("  pip install -e \".[dev]\"")
+    print("  pytest")
     print()
     print(f"AIEP pattern : {args.pattern}")
     print(f"Kernel       : v{KERNEL_VERSION} (frozen)")
@@ -139,7 +138,7 @@ def _cmd_adopt(args) -> int:
 
     print()
     if not args.dry_run:
-        print(f"Adoption complete. Run:  pytest tests/test_genome_compliance.py")
+        print("Adoption complete. Run:  pytest tests/test_genome_compliance.py")
     else:
         print("Dry run complete. Re-run without --dry-run to apply changes.")
     return 0

@@ -2,14 +2,12 @@
 import unittest
 from aiep_genome.kernel import (
     canonical_json, sha256_hex, sha256_bytes, concat_hash,
-    evidence_commitment, lifecycle_hash, normalisation_hash,
-    negative_proof_hash, pack_hash, run_self_test,
-    evaluate_gate, GateResult, MAX_ACTIVE_FRONTIER,
+    evidence_commitment, lifecycle_hash, pack_hash, run_self_test,
+    evaluate_gate, MAX_ACTIVE_FRONTIER,
     arbitration_hash, evaluate_admissibility, CONSTITUTIONAL_CONSTRAINTS,
     create_negative_proof_record, verify_negative_proof_record,
     KERNEL_VERSION, ACTIVE_ALGORITHM, DIGEST_PATTERN,
 )
-import re
 
 
 class TestCanonSerialization(unittest.TestCase):
@@ -61,7 +59,8 @@ class TestCanonSerialization(unittest.TestCase):
 
     def test_r5_float_matches_verifier(self):
         # Verify canonical_json(1.0) and standalone_verify canonical_json(1.0) produce same hash
-        import importlib.util as _ilu, pathlib
+        import importlib.util as _ilu
+        import pathlib
         _sv_path = pathlib.Path(__file__).parent.parent / "src" / "aiep_genome" / "standalone_verify.py"
         _spec = _ilu.spec_from_file_location("standalone_verify", _sv_path)
         _sv = _ilu.module_from_spec(_spec)
@@ -71,7 +70,6 @@ class TestCanonSerialization(unittest.TestCase):
                              f"R5 divergence for input {obj!r}")
 
     def test_r5_minus_zero_forbidden(self):
-        import math
         with self.assertRaises(ValueError):
             canonical_json({"n": -0.0})
 

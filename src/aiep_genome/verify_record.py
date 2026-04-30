@@ -23,7 +23,6 @@ import json
 import hashlib
 import unicodedata
 import argparse
-import os
 from pathlib import Path
 
 __version__ = "1.0.0"

@@ -22,7 +22,7 @@ P01 §[0015] tamper-evidence:
     for consistency with the hub canon. Deviation is documented in the artefact.
 """
 
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 
 from aiep_genome.kernel.canon import canonical_json, sha256_hex

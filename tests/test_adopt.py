@@ -14,7 +14,7 @@ def _make_bare_project(tmp: str, name: str = "myapp") -> str:
     src_dir = os.path.join(tmp, "src", name)
     os.makedirs(src_dir, exist_ok=True)
     with open(os.path.join(src_dir, "__init__.py"), "w", encoding="utf-8") as f:
-        f.write(f'__version__ = "0.1.0"\n')
+        f.write('__version__ = "0.1.0"\n')
     pyproject = os.path.join(tmp, "pyproject.toml")
     with open(pyproject, "w", encoding="utf-8") as f:
         f.write(textwrap.dedent(f"""\

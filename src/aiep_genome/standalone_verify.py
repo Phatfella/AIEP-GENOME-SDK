@@ -19,6 +19,7 @@ from __future__ import annotations
 import sys
 import json
 import hashlib
+import math as _math
 import unicodedata
 import argparse
 import decimal
@@ -528,7 +529,6 @@ def _run_dis(v: dict) -> tuple:
                   f"HIGH {h_high[:12]}... != LOW {h_low[:12]}...")
 
 # Special numeric inputs for R5 error vectors (not representable in JSON).
-import math as _math
 _R5_ERROR_INPUTS = {
     "AIEP-TV-R5-005": -0.0,
     "AIEP-TV-R5-006": _math.nan,

@@ -5,7 +5,7 @@ LOCKED at v1.0.0. Implements P16 deterministic temporal evidence gap commitment.
 Absence of evidence is evidence. It must be committed, not ignored.
 """
 
-from aiep_genome.kernel.canon import negative_proof_hash, sha256_hex, canonical_json
+from aiep_genome.kernel.canon import negative_proof_hash
 
 KERNEL_VERSION = "1.0.0"
 

@@ -14,7 +14,6 @@ Patterns
 from __future__ import annotations
 
 import json
-import os
 from pathlib import Path
 from typing import Literal
 
@@ -137,7 +136,6 @@ if __name__ == "__main__":
 
 
 def _ledger_py(name: str) -> str:
-    module_name = name.replace("-", "_")
     return '''\
 """
 genome/ledger.py — Evidence Ledger integration layer
@@ -530,7 +528,7 @@ def scaffold_new_project(
         # Sample schema
         schema = {
             "$schema": "https://aiep.dev/schemas/evidence.v1.0.0.schema.json",
-            "schema_version_id": f"aiep.evidence.v1.0.0",
+            "schema_version_id": "aiep.evidence.v1.0.0",
             "name": name,
             "description": description,
         }

@@ -22,7 +22,6 @@ Usage (CLI)
 from __future__ import annotations
 
 import json
-import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -274,7 +273,6 @@ def make_arbitration_record(
 
 
 def _compliance_tests(package_name: str, pattern: str, genome_path: str) -> str:
-    module_name = package_name.replace("-", "_")
     return f'''\
 """
 tests/test_genome_compliance.py — Genome compliance tests for {package_name}

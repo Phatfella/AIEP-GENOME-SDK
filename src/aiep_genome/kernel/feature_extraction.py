@@ -23,7 +23,7 @@ All hashes use the kernel concat_hash function (length-prefixed-8be, SHA-256).
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, Optional
 
 from aiep_genome.kernel.canon import canonical_json, concat_hash

@@ -5,7 +5,7 @@ LOCKED at v1.0.0. Layer 1 constitutional arbitration.
 No conclusion bypasses structured dissent. No fork forms outside constitutional constraints.
 """
 
-from aiep_genome.kernel.canon import concat_hash, canonical_json, sha256_hex
+from aiep_genome.kernel.canon import concat_hash
 
 KERNEL_VERSION = "1.0.0"
 

@@ -5,7 +5,7 @@ LOCKED at v1.0.0. Implements invariants I1–I6.
 Returns GateResult — never raises. Callers must check gate.is_open.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Optional
 
 KERNEL_VERSION = "1.0.0"
